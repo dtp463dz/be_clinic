@@ -1,0 +1,17 @@
+{
+  "name": "be-clinic",
+  "version": "1.0.0",
+  "description": "backend nodejs",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Dean TPhuz",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^2.2.0",
+    "dotenv": "^16.4.7",
+    "ejs": "^3.1.10",
+    "express": "^5.1.0"
+  }
+}
