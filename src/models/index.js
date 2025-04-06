@@ -1,5 +1,5 @@
 'use strict';
-
+require('dotenv').config(); // khi import dotenv vào thì mới dùng được câu lệnh process.env
 const fs = require('fs');
 const path = require('path');
 const Sequelize = require('sequelize');

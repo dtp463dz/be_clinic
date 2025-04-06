@@ -7,7 +7,6 @@ let router = express.Router();
 let initWebRoutes = (app) => {
 
     router.get('/', homeController.getHomePage);
-    router.get('/views', homeController.getHomePageView);
     router.get('/about', homeController.getAboutPage);
 
     router.get('/home', (req, res) => {
