@@ -4,11 +4,17 @@
 module.exports = {
   // up: chạy bình thường, thêm dữ liệu vào
   async up(queryInterface, Sequelize) {
+    // bulkInsert: chèn nhiều bảng ghi 1 lúc
     return queryInterface.bulkInsert('Users', [
       {
-        firstName: 'John',
-        lastName: 'Doe',
-        email: 'example@example.com',
+        email: 'admin@gmail.com',
+        password: '123456', //đây là plain text, thì cần phải chuyển thành hash text
+        firstName: 'Dean',
+        lastName: 'TPhuz',
+        address: 'VN',
+        gender: 1,
+        typeRole: 'Role',
+        keyRole: 'R1',
         createdAt: new Date(),
         updatedAt: new Date(),
       },
