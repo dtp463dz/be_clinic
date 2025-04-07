@@ -2,7 +2,7 @@
   "development": {
     "username": "root",
     "password": null,
-    "database": "fakehoidanit",
+    "database": "be_clinic",
     "host": "127.0.0.1",
     "dialect": "mysql",
     "logging": false
