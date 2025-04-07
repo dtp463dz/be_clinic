@@ -29,14 +29,51 @@ let postCRUD = async (req, res) => {
 // read (display) crud
 let displayGetCRUD = async (req, res) => {
     let data = await CRUDService.getAllUser();
-    console.log('----------')
-    console.log(data);
-    console.log('----------')
+    // console.log('----------')
+    // console.log(data);
+    // console.log('----------')
     return res.render('displayCRUD.ejs', {
         // chuyền 1 biến sang view
         dataTable: data,
     });
 }
+
+// update crud
+let getEditCRUD = async (req, res) => {
+    let userId = req.query.id;
+    console.log(userId);
+    // validate
+    if (userId) {
+        let userData = await CRUDService.getUserInfoById(userId);
+        // check userData not found
+
+        return res.render('editCRUD.ejs', {
+            // truyền qua view
+            user: userData // userData gắn cho user
+        });
+
+    } else {
+        return res.send('user not found');
+    }
+    console.log(req.query.id);  // lấy id của user
+
+}
+
+// update user form
+let putCRUD = async (req, res) => {
+    let data = req.body;
+
+    let allUser = await CRUDService.updateUserData(data);
+    // sau khi đã update thành công cần hiển thị phần update ở display user
+    return res.render('displayCRUD.ejs', {
+        // chuyền 1 biến sang view
+        // update lại all user vào data table
+        dataTable: allUser,
+    });
+    // return res.send('update done!');
+
+}
+
 
 module.exports = {
     getHomePage: getHomePage,
@@ -44,5 +81,6 @@ module.exports = {
     getCRUD: getCRUD,
     postCRUD: postCRUD,
     displayGetCRUD: displayGetCRUD,
-
+    getEditCRUD: getEditCRUD,
+    putCRUD: putCRUD,
 }

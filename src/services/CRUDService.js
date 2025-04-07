@@ -1,11 +1,12 @@
 import bcrypt from "bcryptjs"; // hash password
 import db from "../models/index";
 import { raw } from "body-parser";
+import { where } from "sequelize";
 const salt = bcrypt.genSaltSync(10);
 
 // create new user
 let createNewUser = async (data) => {
-    return new Promise(async (resole, reject) => {
+    return new Promise(async (resolve, reject) => {
         try {
             let hashPasswordFromBcrypt = await hashUserPassword(data.password);
             await db.User.create({
@@ -18,7 +19,7 @@ let createNewUser = async (data) => {
                 gender: data.gender === '1' ? true : false, // dieu kien gender
                 roleId: data.roleId,
             })
-            resole('ok create a new user succed! ');
+            resolve('ok create a new user succed! ');
         } catch (e) {
             reject(e)
         }
@@ -29,10 +30,10 @@ let createNewUser = async (data) => {
 // hash password
 let hashUserPassword = (password) => {
     // Promise đảm bảo hàm này luôn trả kết quả cho chúng ta
-    return new Promise(async (resole, reject) => {
+    return new Promise(async (resolve, reject) => {
         try {
             const hashPassword = await bcrypt.hashSync(password, salt);
-            resole(hashPassword);
+            resolve(hashPassword);
         } catch (e) {
             reject(e);
         }
@@ -41,14 +42,64 @@ let hashUserPassword = (password) => {
 
 // read user
 let getAllUser = () => {
-    return new Promise(async (resole, reject) => {
+    return new Promise(async (resolve, reject) => {
         try {
+            // findAll :  sequelize find 
             let users = db.User.findAll({
                 raw: true // show only array
             });
-            resole(users);
+            resolve(users);
         } catch (e) {
             reject(e);
+        }
+    })
+}
+
+// view find update user
+let getUserInfoById = (userId) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            // findOne: sequelize find 
+            let user = await db.User.findOne({
+                where: { id: userId },
+                raw: true,
+            })
+            if (user) {
+                resolve(user);
+            } else {
+                resolve({})
+            }
+        } catch (e) {
+            reject(e);
+        }
+    })
+}
+
+// update user data form
+let updateUserData = (data) => {
+    // console.log('data from service')
+    // console.log(data)
+    return new Promise(async (resolve, reject) => {
+        try {
+            // sequelize update
+            let user = await db.User.findOne({
+                where: { id: data.id }
+            })
+            if (user) {
+                // update fname, lname, address 
+                user.firstName = data.firstName;
+                user.lastName = data.lastName;
+                user.address = data.address;
+                // luu thong tin cua user lai
+                await user.save();
+                // lay lai all user
+                let allUser = await db.User.findAll();
+                resolve(allUser);
+            } else {
+                resolve();
+            }
+        } catch (e) {
+            console.log(e)
         }
     })
 }
@@ -57,4 +108,6 @@ module.exports = {
     createNewUser: createNewUser,
     hashUserPassword: hashUserPassword,
     getAllUser: getAllUser,
+    getUserInfoById: getUserInfoById,
+    updateUserData: updateUserData,
 }
