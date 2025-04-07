@@ -12,6 +12,10 @@ let initWebRoutes = (app) => {
     router.get('/home', (req, res) => {
         return res.send('Home')
     });
+    router.get('/crud', homeController.getCRUD);
+    router.post('/post-crud', homeController.postCRUD);
+
+
     // rest api
     return app.use("/", router);
 }
