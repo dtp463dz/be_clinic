@@ -3,9 +3,16 @@ import bodyParser from "body-parser";
 import viewEngine from "./config/viewEngine";
 import initWebRoutes from "./route/web";
 import connectDB from "./config/connectDB";
+import cors from "cors";
 require('dotenv').config();
 
 let app = express();
+
+// Cho phép CORS từ frontend (localhost:5173)
+app.use(cors({
+    origin: 'http://localhost:5173',  // frontend Vite
+    credentials: true                 // nếu bạn dùng cookie/session
+}));
 
 // config app
 
