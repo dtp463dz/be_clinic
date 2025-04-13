@@ -30,6 +30,26 @@ let handleLogin = async (req, res) => {
     })
 }
 
+// lay tat ca users
+let handleGetAllUsers = async (req, res) => {
+    let id = req.query.id; // all: lấy tất cả người dùng, id: lấy chính xác người dùng
+    if (!id) {
+        return res.status(200).json({
+            errCode: 1,
+            errMessage: 'Missing requred parameters',
+            users: []
+        })
+    }
+    let users = await userService.getAllUsers(id);
+    console.log('check users: ', users)
+    return res.status(200).json({
+        errCode: 0,
+        errMessage: 'OK',
+        users
+    })
+}
+
 module.exports = {
     handleLogin: handleLogin,
+    handleGetAllUsers: handleGetAllUsers,
 }
