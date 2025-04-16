@@ -1,6 +1,20 @@
 import db from "../models/index";
 import bcrypt from "bcryptjs"; // hash password
 
+const salt = bcrypt.genSaltSync(10);
+// hash password
+let hashUserPassword = (password) => {
+    // Promise đảm bảo hàm này luôn trả kết quả cho chúng ta
+    return new Promise(async (resolve, reject) => {
+        try {
+            const hashPassword = await bcrypt.hashSync(password, salt);
+            resolve(hashPassword);
+        } catch (e) {
+            reject(e);
+        }
+    })
+}
+
 //login
 let handleUserLogin = (email, password) => {
     return new Promise(async (resolve, reject) => {
@@ -95,10 +109,42 @@ let getAllUsers = (userId) => {
 
 }
 
-
+// tạo mới user
+let createNewUser = async (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            // check email có tồn tại không
+            let check = await checkUserEmail(data.email);
+            if (check === true) {
+                resolve({
+                    errCode: 1,
+                    message: 'Email này đã được sử dụng. Vui lòng tạo email khác'
+                })
+            }
+            let hashPasswordFromBcrypt = await hashUserPassword(data.password)
+            await db.User.create({
+                email: data.email,
+                password: hashPasswordFromBcrypt,
+                firstName: data.firstName,
+                lastName: data.lastName,
+                address: data.address,
+                phonenumber: data.phonenumber,
+                gender: data.gender === '1' ? true : false,
+                roleId: data.roleId,
+            })
+            resolve({
+                errCode: 0,
+                message: 'OK'
+            })
+        } catch (e) {
+            reject(e);
+        }
+    })
+}
 
 module.exports = {
     handleUserLogin: handleUserLogin,
     checkUserEmail: checkUserEmail,
     getAllUsers: getAllUsers,
+    createNewUser: createNewUser,
 }

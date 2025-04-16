@@ -1,7 +1,6 @@
 import bcrypt from "bcryptjs"; // hash password
 import db from "../models/index";
-import { raw } from "body-parser";
-import { where } from "sequelize";
+
 const salt = bcrypt.genSaltSync(10);
 
 // create new user

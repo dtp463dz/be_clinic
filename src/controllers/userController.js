@@ -49,7 +49,18 @@ let handleGetAllUsers = async (req, res) => {
     })
 }
 
+// tạo mới user
+let handleCreateNewUser = async (req, res) => {
+    let message = await userService.createNewUser(req.body);
+    console.log('check message handleCreateNewUser: ', message);
+    return res.status(200).json(message);
+
+
+
+}
+
 module.exports = {
     handleLogin: handleLogin,
     handleGetAllUsers: handleGetAllUsers,
+    handleCreateNewUser: handleCreateNewUser,
 }
