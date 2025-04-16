@@ -1,3 +1,4 @@
+import { raw } from "body-parser";
 import db from "../models/index";
 import bcrypt from "bcryptjs"; // hash password
 
@@ -143,8 +144,47 @@ let createNewUser = async (data) => {
 }
 
 // edit user
-let updateUserByData = () => {
-
+let updateUserData = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            // check
+            if (!data.id) {
+                resolve({
+                    errCode: 2,
+                    errMessage: 'Người dùng không hợp lệ'
+                })
+            }
+            // sequelize update
+            let user = await db.User.findOne({
+                where: { id: data.id },
+                raw: false
+            })
+            // console.log('check user edit', user)
+            if (user) {
+                user.firstName = data.firstName;
+                user.lastName = data.lastName;
+                user.address = data.address;
+                await user.save();
+                // luu thong tin cua user lai
+                // await db.user.save({
+                //     firstName: data.firstName,
+                //     lastName: data.lastName,
+                //     address: data.address,
+                // }, {where: {id: userId}})
+                resolve({
+                    errCode: 0,
+                    message: 'Cập nhật người dùng thành công'
+                })
+            } else {
+                resolve({
+                    errCode: 1,
+                    message: 'Cập nhật người dùng không thành công'
+                });
+            }
+        } catch (e) {
+            reject(e);
+        }
+    })
 }
 
 // delete user
@@ -186,5 +226,5 @@ module.exports = {
     getAllUsers: getAllUsers,
     createNewUser: createNewUser,
     deleteUser: deleteUser,
-    updateUserByData: updateUserByData
+    updateUserData: updateUserData
 }
