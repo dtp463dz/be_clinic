@@ -142,9 +142,49 @@ let createNewUser = async (data) => {
     })
 }
 
+// edit user
+let updateUserByData = () => {
+
+}
+
+// delete user
+let deleteUser = (userId) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+
+            // delete requelize
+            let user = await db.User.findOne({
+                where: { id: userId },
+                raw: false
+            })
+            if (!user) {
+                resolve({
+                    errCode: 2,
+                    errMessage: 'Người dùng này không tồn tại'
+                })
+            }
+            console.log('check: ', user)
+            await user.destroy({
+                where: { id: userId }
+            });// phá hủy người dùng
+
+
+            resolve({
+                errCode: 0,
+                errMessage: 'Thực hiện xóa người dùng thành công!'
+            });
+        } catch (e) {
+            reject(e);
+        }
+    })
+
+}
+
 module.exports = {
     handleUserLogin: handleUserLogin,
     checkUserEmail: checkUserEmail,
     getAllUsers: getAllUsers,
     createNewUser: createNewUser,
+    deleteUser: deleteUser,
+    updateUserByData: updateUserByData
 }

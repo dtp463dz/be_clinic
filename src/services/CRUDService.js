@@ -109,7 +109,7 @@ let deleteUserById = (userId) => {
         try {
             // delete requelize
             let user = await db.User.findOne({
-                where: { id: userId }
+                where: { id: userId },
             })
             if (user) {
                 await user.destroy();

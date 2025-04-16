@@ -21,12 +21,15 @@ let initWebRoutes = (app) => {
     router.post('/put-crud', homeController.putCRUD);
     router.get('/delete-crud', homeController.deleteCRUD);
 
-    // api
+    // restApi
     router.post('/api/login', userController.handleLogin); // login
     router.get(`/api/get-all-users`, userController.handleGetAllUsers); // hien thi all users
     router.post(`/api/create-new-user`, userController.handleCreateNewUser); // tao new user
+    router.put(`/api/edit-user`, userController.handleEditUser);  // edit user
+    router.delete(`/api/delete-user`, userController.handleDeleteUser); // delete user
 
-    // rest api
+
+
     return app.use("/", router);
 }
 module.exports = initWebRoutes;
