@@ -1,5 +1,19 @@
 import userService from "../services/userService";
 
+// register
+let handleRegister = async (req, res) => {
+    let message = await userService.handleRegisterUser(req.body);
+    console.log('check message: ', message);
+    // return res.status(200).json({
+    //     errCode: 0,
+    //     errMessage: 'Create new user succees! ',
+    // })
+
+    return res.status(200).json(message);
+
+}
+
+// login
 let handleLogin = async (req, res) => {
     let email = req.body.email;
     console.log('your email: ', + email);
@@ -94,6 +108,7 @@ let getAllCode = async (req, res) => {
 }
 
 module.exports = {
+    handleRegister: handleRegister,
     handleLogin: handleLogin,
     handleGetAllUsers: handleGetAllUsers,
     handleCreateNewUser: handleCreateNewUser,

@@ -16,6 +16,50 @@ let hashUserPassword = (password) => {
     })
 }
 
+// register
+let handleRegisterUser = async (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            // validate input
+            if (!data.email || !data.password || !data.firstName || !data.lastName) {
+                resolve({
+                    errCode: 2,
+                    errMessage: 'Missing required parameters !'
+                })
+            }
+            // check email đã tồn tại chưa
+            let check = await checkUserEmail(data.email);
+            if (check === true) {
+                resolve({
+                    errCode: 1,
+                    errMessage: 'Email already in use! '
+                })
+            }
+
+            let hashPasswordFromBcrypt = await hashUserPassword(data.password)
+            await db.User.create({
+                email: data.email,
+                password: hashPasswordFromBcrypt,
+                firstName: data.firstName,
+                lastName: data.lastName,
+                address: data.address,
+                phonenumber: data.phonenumber,
+                gender: data.gender === '1' ? true : false,
+                roleId: data.roleId,
+            })
+            resolve({
+                errCode: 0,
+                errMessage: 'Create new user success!'
+            });
+        } catch (e) {
+            reject({
+                errCode: -1,
+                errMessage: 'Error from server'
+            })
+        }
+    })
+}
+
 //login
 let handleUserLogin = (email, password) => {
     return new Promise(async (resolve, reject) => {
@@ -245,6 +289,7 @@ let getAllCodeService = (typeInput) => {
 }
 
 module.exports = {
+    handleRegisterUser: handleRegisterUser,
     handleUserLogin: handleUserLogin,
     checkUserEmail: checkUserEmail,
     getAllUsers: getAllUsers,
