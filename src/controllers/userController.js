@@ -16,8 +16,8 @@ let handleRegister = async (req, res) => {
 // login
 let handleLogin = async (req, res) => {
     let email = req.body.email;
-    console.log('your email: ', + email);
     let password = req.body.password;
+    let delay = parseInt(req.body.delay) || 0;
     // Các bước: 
     // check email người dùng có tồn tại k
     if (!email || !password) {
@@ -27,21 +27,15 @@ let handleLogin = async (req, res) => {
         })
     }
     let userData = await userService.handleUserLogin(email, password);
-    console.log('check userData: ', userData)
-    // so sánh password của người dùng truyền lên cho chúng ta
-    // return userInfor
-    // access token: JWT json web token
 
-
-    return res.status(200).json({
-        // errCode: 0,
-        // message: 'hello world',
-        // yourEmail: email,
-        // test: 'test'
-        errCode: userData.errCode,
-        message: userData.errMessage,
-        user: userData.user ? userData.user : {}
-    })
+    // trì hoãn phản hồi delay
+    setTimeout(() => {
+        return res.status(200).json({
+            errCode: userData.errCode,
+            message: userData.errMessage,
+            user: userData.user ? userData.user : {}
+        })
+    }, delay);
 }
 
 // lay tat ca users
