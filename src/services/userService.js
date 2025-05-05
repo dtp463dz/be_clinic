@@ -109,21 +109,21 @@ let handleUserLogin = (email, password) => {
 let checkUserEmail = (userEmail) => {
     return new Promise(async (resolve, reject) => {
         try {
-            // tìm user ở model có table User
+            // Kiểm tra userEmail hợp lệ
+            if (!userEmail || userEmail.trim() === "") {
+                resolve(false); // Trả về false nếu email không hợp lệ
+                return;
+            }
+
             let user = await db.User.findOne({
                 where: { email: userEmail }
-            })
-            // check user 
-            if (user) {
-                resolve(true)
-            } else {
-                resolve(false)
-            }
+            });
+            resolve(!!user); // Trả về true nếu user tồn tại, false nếu không
         } catch (e) {
             reject(e);
         }
-    })
-}
+    });
+};
 
 // lay tat ca users
 let getAllUsers = (userId) => {
@@ -155,39 +155,54 @@ let getAllUsers = (userId) => {
 }
 
 // tạo mới user
+
 let createNewUser = async (data) => {
     return new Promise(async (resolve, reject) => {
         try {
-            // check email có tồn tại không
-            let check = await checkUserEmail(data.email);
+            // Truy cập userData
+            const userData = data.userData || data; // Nếu data đã là userData
+            // Kiểm tra email hợp lệ
+            if (!userData.email || userData.email.trim() === "") {
+                resolve({
+                    errCode: 1,
+                    message: 'Email là bắt buộc và không được để trống'
+                });
+                return;
+            }
+
+            // Check email có tồn tại không
+            let check = await checkUserEmail(userData.email);
             if (check === true) {
                 resolve({
                     errCode: 1,
                     message: 'Email này đã được sử dụng. Vui lòng tạo email khác'
-                })
+                });
+                return;
             }
-            let hashPasswordFromBcrypt = await hashUserPassword(data.password)
-            await db.User.create({
-                email: data.email,
-                password: hashPasswordFromBcrypt,
-                firstName: data.firstName,
-                lastName: data.lastName,
-                address: data.address,
-                phonenumber: data.phonenumber,
-                gender: data.gender,
-                roleId: data.roleId,
-                positionId: data.positionId,
 
-            })
+            let hashPasswordFromBcrypt = await hashUserPassword(userData.password);
+            await db.User.create({
+                email: userData.email,
+                password: hashPasswordFromBcrypt,
+                firstName: userData.firstName,
+                lastName: userData.lastName,
+                address: userData.address,
+                phonenumber: userData.phonenumber,
+                gender: userData.gender,
+                roleId: userData.roleId,
+                positionId: userData.positionId,
+                image: userData.image,
+            });
+
             resolve({
                 errCode: 0,
                 message: 'OK'
-            })
+            });
         } catch (e) {
             reject(e);
         }
-    })
-}
+    });
+};
 
 // edit user
 let updateUserData = (data) => {
