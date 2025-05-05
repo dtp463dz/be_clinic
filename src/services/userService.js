@@ -227,8 +227,11 @@ let updateUserData = (data) => {
                 user.address = data.address;
                 user.roleId = data.roleId;
                 user.positionId = data.positionId;
-                user.gender = user.gender;
+                user.gender = data.gender;
                 user.phonenumber = data.phonenumber;
+                if (data.image) {
+                    user.image = data.image;
+                }
                 await user.save();
 
                 resolve({
