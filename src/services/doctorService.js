@@ -49,7 +49,35 @@ let getAllDoctorService = () => {
     })
 }
 
+// luu thong tin doctors
+let saveDetailInforDoctor = (inputData) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (!inputData.doctorId || inputData.contentHTML || inputData.contentMarkdown) {
+                resolve({
+                    errCode: 1,
+                    errMessage: 'Mising parameter'
+                })
+            } else {
+                await db.Markdown.create({
+                    contentHTML: inputData.contentHTML,
+                    contentMarkdown: inputData.contentMarkdown,
+                    description: inputData.description,
+                    doctorId: inputData.doctorId,
+                })
+                resolve({
+                    errCode: 0,
+                    errMessage: 'Save infor doctor succeed! '
+                })
+            }
+        } catch (e) {
+            reject(e);
+        }
+    })
+}
+
 module.exports = {
     getTopDoctorHomeService: getTopDoctorHomeService,
-    getAllDoctorService: getAllDoctorService
+    getAllDoctorService: getAllDoctorService,
+    saveDetailInforDoctor: saveDetailInforDoctor,
 }
