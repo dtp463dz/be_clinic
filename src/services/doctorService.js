@@ -53,7 +53,7 @@ let getAllDoctorService = () => {
 let saveDetailInforDoctor = (inputData) => {
     return new Promise(async (resolve, reject) => {
         try {
-            if (!inputData.doctorId || inputData.contentHTML || inputData.contentMarkdown) {
+            if (!inputData.doctorId || !inputData.contentHTML || !inputData.contentMarkdown) {
                 resolve({
                     errCode: 1,
                     errMessage: 'Mising parameter'
