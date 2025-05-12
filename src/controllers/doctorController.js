@@ -1,5 +1,6 @@
 import doctorService from "../services/doctorService";
 
+// lay thong tin doctor home
 let getTopDoctorHome = async (req, res) => {
     let limit = req.query.limit;
     if (!limit) limit = 10;
@@ -15,6 +16,21 @@ let getTopDoctorHome = async (req, res) => {
     }
 }
 
+// get all doctor
+let getAllDoctor = async (req, res) => {
+    try {
+        let doctors = await doctorService.getAllDoctorService();
+        return res.status(200).json(doctors);
+    } catch (e) {
+        console.log(e)
+        return res.status(200).json({
+            errCode: -1,
+            message: 'Error from server...'
+        })
+    }
+}
+
 module.exports = {
     getTopDoctorHome: getTopDoctorHome,
+    getAllDoctor: getAllDoctor
 }
