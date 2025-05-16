@@ -1,4 +1,5 @@
 import db from "../models/index";
+import { Buffer } from 'buffer';
 let getTopDoctorHomeService = (limitInput) => {
     return new Promise(async (resolve, reject) => {
         try {
@@ -53,18 +54,33 @@ let getAllDoctorService = () => {
 let saveDetailInforDoctor = (inputData) => {
     return new Promise(async (resolve, reject) => {
         try {
-            if (!inputData.doctorId || !inputData.contentHTML || !inputData.contentMarkdown) {
+            if (!inputData.doctorId || !inputData.contentHTML || !inputData.contentMarkdown || !inputData.action) {
                 resolve({
                     errCode: 1,
                     errMessage: 'Mising parameter'
                 })
             } else {
-                await db.Markdown.create({
-                    contentHTML: inputData.contentHTML,
-                    contentMarkdown: inputData.contentMarkdown,
-                    description: inputData.description,
-                    doctorId: inputData.doctorId,
-                })
+                // tao case create va edit doctor
+                if (inputData.action === "CREATE") {
+                    await db.Markdown.create({
+                        contentHTML: inputData.contentHTML,
+                        contentMarkdown: inputData.contentMarkdown,
+                        description: inputData.description,
+                        doctorId: inputData.doctorId,
+                    })
+                } else if (inputData.action === "EDIT") {
+                    let doctorMarkdown = await db.Markdown.findOne({
+                        where: { doctorId: inputData.doctorId },
+                        raw: false
+                    })
+                    if (doctorMarkdown) {
+                        doctorMarkdown.contentHTML = inputData.contentHTML;
+                        doctorMarkdown.contentMarkdown = inputData.contentMarkdown;
+                        doctorMarkdown.description = inputData.description;
+                        await doctorMarkdown.save();
+                    }
+                }
+
                 resolve({
                     errCode: 0,
                     errMessage: 'Save infor doctor succeed! '
@@ -92,7 +108,7 @@ let getDetailDoctorByIdService = (inputId) => {
                         id: inputId
                     },
                     attributes: {
-                        exclude: ['password', 'image'] // Loại bỏ các trường password và image khỏi kết quả
+                        exclude: ['password'] // Loại bỏ các trường password và image khỏi kết quả
                     },
                     include: [
                         {
@@ -105,6 +121,8 @@ let getDetailDoctorByIdService = (inputId) => {
                     raw: true, // Trả về dữ liệu thuần (không phải instance của Sequelize)
                     nest: true, // Giữ cấu trúc lồng nhau giữa các bảng (User -> Markdown)
                 })
+
+                if (!data) data = {}
                 resolve({
                     errCode: 0,
                     data: data,
