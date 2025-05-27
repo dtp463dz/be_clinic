@@ -1,5 +1,11 @@
 import db from "../models/index";
-import { Buffer } from 'buffer';
+import dotenv from 'dotenv';
+import _ from 'lodash';
+import moment from "moment";
+dotenv.config();
+
+const MAX_NUMBER_SCHEDULE = process.env.MAX_NUMBER_SCHEDULE;
+
 let getTopDoctorHomeService = (limitInput) => {
     return new Promise(async (resolve, reject) => {
         try {
@@ -134,9 +140,150 @@ let getDetailDoctorByIdService = (inputId) => {
     })
 }
 
+// bulk create schedule service
+// let bulkCreateScheduleService = (data) => {
+//     return new Promise(async (resolve, reject) => {
+//         try {
+//             if (!data.arrSchedule || !data.doctorId || !data.formattedDate) {
+//                 resolve({
+//                     errCode: 1,
+//                     errMessage: 'Missing required param !'
+//                 })
+//             } else {
+//                 let schedule = data.arrSchedule;
+//                 if (schedule && schedule.length > 0) {
+//                     schedule = schedule.map((item) => {
+//                         item.maxNumber = MAX_NUMBER_SCHEDULE;
+//                         item.date = new Date(new Date(item.date).setHours(0, 0, 0, 0)).getTime();
+//                         return item;
+//                     })
+//                 }
+//                 console.log('check data bulk create schedule data send: ', schedule);
+//                 // check trùng doctorId, date,timeType
+//                 let existing = await db.Schedule.findAll(
+//                     {
+//                         where: { doctorId: data.doctorId, date: data.formattedDate },
+//                         attributes: ['timeType', 'date', 'doctorId', 'maxNumber'],
+//                         raw: true
+//                     }
+//                 );
+//                 // covert date
+//                 if (existing && existing.length > 0) {
+//                     existing = existing.map(item => {
+//                         item.date = new Date(new Date(item.date).setHours(0, 0, 0, 0)).getTime();
+//                         return item;
+//                     })
+//                 }
+//                 // differencewith tìm sự khác biệt giữa hai mảng với sự so sánh là timeType, date
+//                 // compare different
+//                 let toCreate = _.differenceWith(schedule, existing, (a, b) => {
+//                     return a.timeType === b.timeType && a.date === b.date;
+//                 });
+
+//                 //create data
+//                 if (toCreate && toCreate.length > 0) {
+//                     await db.Schedule.bulkCreate(toCreate);
+//                 }
+//                 console.log('check to create: ', toCreate)
+//                 resolve({
+//                     errCode: 0,
+//                     errMessage: 'OK'
+//                 })
+//             }
+//         } catch (e) {
+//             reject(e);
+//         }
+//     })
+// }
+
+const bulkCreateScheduleService = (data) => {
+    return new Promise(async (resolve, reject) => {
+        const t = await db.sequelize.transaction();
+        try {
+            // Kiểm tra đầu vào
+            if (!data.arrSchedule || !data.doctorId || !data.formattedDate) {
+                await t.rollback();
+                return resolve({
+                    errCode: 1,
+                    errMessage: 'Thiếu tham số bắt buộc: arrSchedule, doctorId, hoặc formattedDate'
+                });
+            }
+
+            if (!Array.isArray(data.arrSchedule) || data.arrSchedule.length === 0) {
+                await t.rollback();
+                return resolve({
+                    errCode: 2,
+                    errMessage: 'arrSchedule phải là mảng không rỗng'
+                });
+            }
+
+            // Chuẩn hóa ngày
+            const queryDate = new Date(new Date(Number(data.formattedDate)).setHours(0, 0, 0, 0)).getTime();
+            const schedule = data.arrSchedule.map(item => {
+                if (!item.timeType || !item.date || item.doctorId !== data.doctorId) {
+                    throw new Error('Dữ liệu lịch không hợp lệ: thiếu timeType, date, hoặc doctorId không khớp');
+                }
+                const itemDate = new Date(new Date(Number(item.date)).setHours(0, 0, 0, 0)).getTime();
+                if (itemDate !== queryDate) {
+                    throw new Error('Ngày trong arrSchedule không khớp với formattedDate');
+                }
+                return {
+                    ...item,
+                    maxNumber: MAX_NUMBER_SCHEDULE,
+                    date: itemDate
+                };
+            });
+
+            // Kiểm tra lịch hiện có
+            let existing = await db.Schedule.findAll({
+                where: { doctorId: data.doctorId, date: queryDate },
+                attributes: ['timeType', 'date', 'doctorId', 'maxNumber'],
+                raw: true,
+                transaction: t
+            });
+
+            // Chuẩn hóa ngày của lịch hiện có
+            existing = existing.map(item => ({
+                ...item,
+                date: new Date(new Date(item.date).setHours(0, 0, 0, 0)).getTime()
+            }));
+
+            // Lọc lịch không trùng lặp
+            const toCreate = _.differenceWith(schedule, existing, (a, b) => {
+                return a.timeType === b.timeType && a.date === b.date;
+            });
+
+            // Thực hiện bulk create
+            let createdCount = 0;
+            if (toCreate.length > 0) {
+                await db.Schedule.bulkCreate(toCreate, { transaction: t });
+                createdCount = toCreate.length;
+            }
+
+            await t.commit();
+            resolve({
+                errCode: 0,
+                errMessage: 'Tạo lịch thành công',
+                createdCount
+            });
+        } catch (e) {
+            await t.rollback();
+            if (e.name === 'SequelizeUniqueConstraintError') {
+                return resolve({
+                    errCode: 4,
+                    errMessage: 'Lịch khám đã tồn tại trong hệ thống'
+                });
+            }
+            reject(new Error(`Lỗi khi tạo lịch: ${e.message}`));
+        }
+    });
+};
+
+
 module.exports = {
     getTopDoctorHomeService: getTopDoctorHomeService,
     getAllDoctorService: getAllDoctorService,
     saveDetailInforDoctor: saveDetailInforDoctor,
     getDetailDoctorByIdService: getDetailDoctorByIdService,
+    bulkCreateScheduleService: bulkCreateScheduleService,
 }
