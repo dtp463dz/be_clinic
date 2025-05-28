@@ -1,7 +1,6 @@
 import db from "../models/index";
 import dotenv from 'dotenv';
 import _ from 'lodash';
-import moment from "moment";
 dotenv.config();
 
 const MAX_NUMBER_SCHEDULE = process.env.MAX_NUMBER_SCHEDULE;
@@ -196,6 +195,7 @@ let getDetailDoctorByIdService = (inputId) => {
 //     })
 // }
 
+// bulk create schedule service
 const bulkCreateScheduleService = (data) => {
     return new Promise(async (resolve, reject) => {
         const t = await db.sequelize.transaction();
@@ -279,6 +279,36 @@ const bulkCreateScheduleService = (data) => {
     });
 };
 
+// get schedule doctor by date
+const getScheduleDoctorByDateService = (doctorId, date) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (!doctorId || !date) {
+                resolve({
+                    errCode: 1,
+                    errMessage: 'Missing required parameter doctorId or date'
+                })
+            } else {
+                // tìm bảng ghi trong bảng Schedule theo doctorId, date
+                let dataSchedule = await db.Schedule.findAll({
+                    where: {
+                        doctorId: doctorId,
+                        date: date,
+                    },
+                    raw: false
+                })
+                if (!dataSchedule) dataSchedule = {}
+                resolve({
+                    errCode: 0,
+                    data: dataSchedule,
+                })
+
+            }
+        } catch (e) {
+            reject(e);
+        }
+    })
+}
 
 module.exports = {
     getTopDoctorHomeService: getTopDoctorHomeService,
@@ -286,4 +316,5 @@ module.exports = {
     saveDetailInforDoctor: saveDetailInforDoctor,
     getDetailDoctorByIdService: getDetailDoctorByIdService,
     bulkCreateScheduleService: bulkCreateScheduleService,
+    getScheduleDoctorByDateService: getScheduleDoctorByDateService,
 }
