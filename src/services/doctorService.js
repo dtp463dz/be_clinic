@@ -139,7 +139,7 @@ let getDetailDoctorByIdService = (inputId) => {
     })
 }
 
-// bulk create schedule service
+// bulk create schedule service theo vid
 // let bulkCreateScheduleService = (data) => {
 //     return new Promise(async (resolve, reject) => {
 //         try {
@@ -217,20 +217,25 @@ const bulkCreateScheduleService = (data) => {
                 });
             }
 
-            // Chuẩn hóa ngày
-            const queryDate = new Date(new Date(Number(data.formattedDate)).setHours(0, 0, 0, 0)).getTime();
+            // Chuẩn hóa ngày thành chuỗi timestamp
+            const formatDate = (timestamp) => {
+                const date = new Date(Number(timestamp));
+                return Math.floor(date.setHours(0, 0, 0, 0)).toString(); // Chuỗi timestamp (ví dụ: "1748451600000")
+            };
+
+            const queryDate = formatDate(data.formattedDate);
             const schedule = data.arrSchedule.map(item => {
                 if (!item.timeType || !item.date || item.doctorId !== data.doctorId) {
                     throw new Error('Dữ liệu lịch không hợp lệ: thiếu timeType, date, hoặc doctorId không khớp');
                 }
-                const itemDate = new Date(new Date(Number(item.date)).setHours(0, 0, 0, 0)).getTime();
+                const itemDate = formatDate(item.date);
                 if (itemDate !== queryDate) {
                     throw new Error('Ngày trong arrSchedule không khớp với formattedDate');
                 }
                 return {
                     ...item,
                     maxNumber: MAX_NUMBER_SCHEDULE,
-                    date: itemDate
+                    date: itemDate // Lưu dưới dạng chuỗi timestamp
                 };
             });
 
@@ -241,12 +246,6 @@ const bulkCreateScheduleService = (data) => {
                 raw: true,
                 transaction: t
             });
-
-            // Chuẩn hóa ngày của lịch hiện có
-            existing = existing.map(item => ({
-                ...item,
-                date: new Date(new Date(item.date).setHours(0, 0, 0, 0)).getTime()
-            }));
 
             // Lọc lịch không trùng lặp
             const toCreate = _.differenceWith(schedule, existing, (a, b) => {
