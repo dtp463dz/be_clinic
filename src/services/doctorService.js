@@ -166,13 +166,6 @@ let getDetailDoctorByIdService = (inputId) => {
 //                         raw: true
 //                     }
 //                 );
-//                 // covert date
-//                 if (existing && existing.length > 0) {
-//                     existing = existing.map(item => {
-//                         item.date = new Date(new Date(item.date).setHours(0, 0, 0, 0)).getTime();
-//                         return item;
-//                     })
-//                 }
 //                 // differencewith tìm sự khác biệt giữa hai mảng với sự so sánh là timeType, date
 //                 // compare different
 //                 let toCreate = _.differenceWith(schedule, existing, (a, b) => {
@@ -238,6 +231,7 @@ const bulkCreateScheduleService = (data) => {
                     date: itemDate // Lưu dưới dạng chuỗi timestamp
                 };
             });
+            console.log('check data bulk create schedule data send: ', schedule);
 
             // Kiểm tra lịch hiện có
             let existing = await db.Schedule.findAll({
@@ -294,7 +288,12 @@ const getScheduleDoctorByDateService = (doctorId, date) => {
                         doctorId: doctorId,
                         date: date,
                     },
-                    raw: false
+                    // thêm data ở Allcode vào bảng Schedule thông qua association
+                    include: [
+                        { model: db.Allcode, as: 'timeTypeData', attributes: ['valueEn', 'valueVi'] }, // lấy timeTypeData được định nghĩa bên bảng Allcode và Schedule
+                    ],
+                    nest: true, // Giữ cấu trúc lồng nhau giữa các bảng (Schedule -> Allcode)
+                    raw: false // Trả về dữ liệu thuần (không phải instance của Sequelize)
                 })
                 if (!dataSchedule) dataSchedule = {}
                 resolve({

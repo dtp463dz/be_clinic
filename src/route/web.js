@@ -30,15 +30,15 @@ let initWebRoutes = (app) => {
     router.delete(`/api/delete-user`, userController.handleDeleteUser); // delete user
 
     router.get('/api/allcode', userController.getAllCode);
-    router.get('/api/top-doctor-home', doctorController.getTopDoctorHome);
+    router.get('/api/top-doctor-home', doctorController.getTopDoctorHome); // api bác sĩ nổi bật (home)
 
-    router.get('/api/get-all-doctor', doctorController.getAllDoctor);
-    router.post('/api/save-infor-doctors', doctorController.postInforDoctors);
-    router.get('/api/get-detail-doctor-by-id', doctorController.getDetailDoctorById);
+    router.get('/api/get-all-doctor', doctorController.getAllDoctor); // lấy tất cả bác sĩ
+    router.post('/api/save-infor-doctors', doctorController.postInforDoctors); // lưu thông tin bác sĩ
+    router.get('/api/get-detail-doctor-by-id', doctorController.getDetailDoctorById); // lấy thông tin chi tiết bác sĩ qua id
 
-    router.post('/api/bulk-create-schedule', doctorController.bulkCreateSchedule);
+    router.post('/api/bulk-create-schedule', doctorController.bulkCreateSchedule); // tạo nhiều lịch khám của bác sĩ 
 
-    router.get('/api/get-schedule-doctor-by-date', doctorController.getScheduleDoctorByDate);
+    router.get('/api/get-schedule-doctor-by-date', doctorController.getScheduleDoctorByDate);   // lấy tất cả lịch khám của bác sĩ
 
 
     return app.use("/", router);
