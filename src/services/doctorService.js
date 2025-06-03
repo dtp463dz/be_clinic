@@ -163,6 +163,17 @@ let getDetailDoctorByIdService = (inputId) => {
                             attributes: ['description', 'contentHTML', 'contentMarkdown'] // lấy các trường được chỉ định
                         }, // Lấy thêm thông tin từ bảng Markdown (quan hệ 1-n hoặc 1-1)
                         { model: db.Allcode, as: 'positionData', attributes: ['valueEn', 'valueVi'] }, // lấy thông tin position từ bảng Allcode
+                        {
+                            model: db.Doctor_Infor,
+                            attributes: {
+                                exclude: ['id', 'doctorId'] // ngoại trừ các trường được chỉ định
+                            },
+                            include: [
+                                { model: db.Allcode, as: 'priceTypeData', attributes: ['valueEn', 'valueVi'] }, // lấy thông tin keyMap price từ bảng Allcode
+                                { model: db.Allcode, as: 'provinceTypeData', attributes: ['valueEn', 'valueVi'] }, // lấy thông tin keyMap province từ bảng Allcode
+                                { model: db.Allcode, as: 'paymentTypeData', attributes: ['valueEn', 'valueVi'] }, // lấy thông tin keyMap payment từ bảng Allcode
+                            ]
+                        },
 
                     ],
                     raw: true, // Trả về dữ liệu thuần (không phải instance của Sequelize)
