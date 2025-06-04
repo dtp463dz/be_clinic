@@ -80,7 +80,21 @@ let getScheduleDoctorByDate = async (req, res) => {
         console.log(e);
         return res.status(200).json({
             errCode: -1,
-            message: 'Error form server !!!'
+            message: 'Error from server !!!'
+        })
+    }
+}
+
+// get extra infor doctor by id : lấy thông tin mở rộng của bác sĩ
+let getExtraInforDoctorById = async (req, res) => {
+    try {
+        let response = await doctorService.getExtraInforDoctorByIdService(req.query.doctorId);
+        return res.status(200).json(response)
+    } catch (e) {
+        console.log(e)
+        return res.status(200).json({
+            errCode: -1,
+            message: 'Error from server !!!'
         })
     }
 }
@@ -92,4 +106,5 @@ module.exports = {
     getDetailDoctorById: getDetailDoctorById,
     bulkCreateSchedule: bulkCreateSchedule,
     getScheduleDoctorByDate: getScheduleDoctorByDate,
+    getExtraInforDoctorById: getExtraInforDoctorById,
 }

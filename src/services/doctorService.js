@@ -1,6 +1,6 @@
 import db from "../models/index";
 import dotenv from 'dotenv';
-import _ from 'lodash';
+import _, { reject } from 'lodash';
 dotenv.config();
 
 const MAX_NUMBER_SCHEDULE = process.env.MAX_NUMBER_SCHEDULE;
@@ -361,6 +361,44 @@ const getScheduleDoctorByDateService = (doctorId, date) => {
     })
 }
 
+// get extra infor doctor by id
+const getExtraInforDoctorByIdService = (idInput) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (!idInput) {
+                resolve({
+                    errCode: 1,
+                    errMessage: 'Missing required parameter doctorId'
+                })
+            } else {
+                let data = await db.Doctor_Infor.findOne({
+                    where: {
+                        doctorId: idInput
+                    },
+                    attributes: {
+                        exclude: ['id', 'doctorId'] // ngoại trừ các trường được chỉ định
+                    },
+                    include: [
+                        { model: db.Allcode, as: 'priceTypeData', attributes: ['valueEn', 'valueVi'] }, // lấy thông tin keyMap price từ bảng Allcode
+                        { model: db.Allcode, as: 'provinceTypeData', attributes: ['valueEn', 'valueVi'] }, // lấy thông tin keyMap province từ bảng Allcode
+                        { model: db.Allcode, as: 'paymentTypeData', attributes: ['valueEn', 'valueVi'] }, // lấy thông tin keyMap payment từ bảng Allcode
+                    ],
+                    raw: true, // Trả về dữ liệu thuần (không phải instance của Sequelize)
+                    nest: true, // Giữ cấu trúc lồng nhau giữa các bảng (Doctor_Infor -> Allcode)
+                })
+                if (!data) data = {};
+                resolve({
+                    errCode: 0,
+                    data: data
+                })
+            }
+        } catch (e) {
+            console.log(e)
+            reject(e);
+        }
+    })
+}
+
 module.exports = {
     getTopDoctorHomeService: getTopDoctorHomeService,
     getAllDoctorService: getAllDoctorService,
@@ -368,4 +406,5 @@ module.exports = {
     getDetailDoctorByIdService: getDetailDoctorByIdService,
     bulkCreateScheduleService: bulkCreateScheduleService,
     getScheduleDoctorByDateService: getScheduleDoctorByDateService,
+    getExtraInforDoctorByIdService: getExtraInforDoctorByIdService,
 }
