@@ -34,7 +34,7 @@ let getTopDoctorHomeService = (limitInput) => {
     })
 }
 
-// 
+// get all doctor
 let getAllDoctorService = () => {
     return new Promise(async (resolve, reject) => {
         try {
@@ -155,7 +155,7 @@ let getDetailDoctorByIdService = (inputId) => {
                         id: inputId
                     },
                     attributes: {
-                        exclude: ['password'] // Loại bỏ các trường password và image khỏi kết quả
+                        exclude: ['password'] // Loại bỏ các trường password 
                     },
                     include: [
                         {
@@ -399,6 +399,83 @@ const getExtraInforDoctorByIdService = (idInput) => {
     })
 }
 
+// get profile by id service
+const getProfileDoctorByIdService = (inputId) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (!inputId) {
+                resolve({
+                    errCode: 1,
+                    errMessage: 'Missing required parameter doctorId'
+                })
+            } else {
+                let data = await db.User.findOne({
+                    where: {
+                        id: inputId
+                    },
+                    attributes: {
+                        exclude: ['password'] // loại bỏ trường password
+                    },
+                    include: [
+                        {
+                            model: db.Markdown,
+                            attributes: ['description', 'contentHTML', 'contentMarkdown'] // lấy các trường được chỉ định
+                        },
+                        {
+                            model: db.Allcode, as: 'positionData', attributes: ['valueEn', 'valueVi'],
+                        },
+                        {
+                            model: db.Doctor_Infor,
+                            attributes: {
+                                exclude: ['id', 'doctorId'] // ngoại trừ các trường được chỉ định
+                            },
+                            include: [
+                                { model: db.Allcode, as: 'priceTypeData', attributes: ['valueEn', 'valueVi'] },
+                                { model: db.Allcode, as: 'provinceTypeData', attributes: ['valueEn', 'valueVi'] }, // lấy thông tin keyMap province từ bảng Allcode
+                                { model: db.Allcode, as: 'paymentTypeData', attributes: ['valueEn', 'valueVi'] }, // lấy thông tin keyMap payment từ bảng Allcode
+                            ]
+                        }
+                    ],
+                    raw: true,
+                    nest: true, //  giữ cấu trúc lồng nhau giữa các bảng (user-> markdown)
+                })
+
+                // // Chuyển đổi image sang base64
+                // if (data && data.image) {
+                //     let base64Image;
+                //     if (data.image.type === 'Buffer' && Array.isArray(data.image.data)) {
+                //         // Trường hợp image là object { type: "Buffer", data: [...] }
+                //         base64Image = Buffer.from(data.image.data).toString('base64');
+                //     } else if (Array.isArray(data.image) || Buffer.isBuffer(data.image)) {
+                //         // Trường hợp image là mảng byte hoặc Buffer trực tiếp
+                //         base64Image = Buffer.from(data.image).toString('base64');
+                //     }
+                //     if (base64Image) {
+                //         data.image = `data:image/jpeg;base64,${base64Image}`; // Giả sử JPEG
+                //     } else {
+                //         data.image = null; // Không thể chuyển đổi
+                //     }
+                // } else {
+                //     data.image = null; // Không có image
+                // }
+
+                // if (data && data.image) {
+                //     data.image = new Buffer(data.image, `base64`).toString('binary');
+                // }
+
+                if (!data) data = {}
+                resolve({
+                    errCode: 0,
+                    data: data,
+                })
+            }
+        } catch (e) {
+            console.log(e);
+            reject(e);
+        }
+    })
+}
+
 module.exports = {
     getTopDoctorHomeService: getTopDoctorHomeService,
     getAllDoctorService: getAllDoctorService,
@@ -407,4 +484,6 @@ module.exports = {
     bulkCreateScheduleService: bulkCreateScheduleService,
     getScheduleDoctorByDateService: getScheduleDoctorByDateService,
     getExtraInforDoctorByIdService: getExtraInforDoctorByIdService,
+    getProfileDoctorByIdService: getProfileDoctorByIdService,
+
 }
