@@ -2,6 +2,8 @@ import express from "express";
 import homeController from "../controllers/homeController";
 import userController from "../controllers/userController";
 import doctorController from "../controllers/doctorController";
+import patientController from "../controllers/patientController";
+
 let router = express.Router();
 
 // quy định hết route bên trong file web.js này 
@@ -43,6 +45,7 @@ let initWebRoutes = (app) => {
     router.get('/api/get-extra-infor-doctor-by-id', doctorController.getExtraInforDoctorById);   // lấy thông tin mở rộng (phòng khám, giá, địa chỉ) của bác sĩ thông qua id
     router.get('/api/get-profile-doctor-by-id', doctorController.getProfileDoctorById);   // lấy thông tin profile của bác sĩ thông qua id
 
+    router.post('/api/patient-book-appointment', patientController.postBookAppointment);   // lấy thông tin profile của bác sĩ thông qua id
 
 
     return app.use("/", router);
