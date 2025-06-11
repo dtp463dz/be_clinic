@@ -344,6 +344,7 @@ const getScheduleDoctorByDateService = (doctorId, date) => {
                     // thêm data ở Allcode vào bảng Schedule thông qua association
                     include: [
                         { model: db.Allcode, as: 'timeTypeData', attributes: ['valueEn', 'valueVi'] }, // lấy timeTypeData được định nghĩa bên bảng Allcode và Schedule
+                        { model: db.User, as: 'doctorData', attributes: ['firstName', 'lastName'] },  // lấy doctorData được định nghĩa bên quan hệ giữa bảng Schedule và User, chỉ lấy firstName lastName
                     ],
                     nest: true, // Giữ cấu trúc lồng nhau giữa các bảng (Schedule -> Allcode)
                     raw: false // Trả về dữ liệu thuần (không phải instance của Sequelize)

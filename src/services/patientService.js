@@ -6,17 +6,17 @@ let postBookAppointmentService = (data) => {
     return new Promise(async (resolve, reject) => {
         try {
 
-            if (!data.email || !data.doctorId || !data.timeType || !data.date) {
+            if (!data.email || !data.doctorId || !data.timeType || !data.date || !data.fullName) {
                 resolve({
                     errCode: 1,
                     errMessage: 'Missing parameter'
                 })
             } else {
                 await emailService.sendSimpleEmail({
-                    reciverEmail: data.email,
-                    patientName: 'DevPhuxz',
-                    time: '8:00 - 9:00 Thứ tư 11/6/2025',
-                    doctorName: "devphuz",
+                    reciverEmail: data.email,   // email nhận
+                    patientName: data.fullName, // ten benh nhan
+                    time: data.timeString,      // thời gian đặt lịch
+                    doctorName: data.doctorName,      // tên bác sĩ 
                     redirectLink: 'http://localhost:5173/home',
                 })
                 // upsert patient
