@@ -46,6 +46,7 @@ let initWebRoutes = (app) => {
     router.get('/api/get-profile-doctor-by-id', doctorController.getProfileDoctorById);   // lấy thông tin profile của bác sĩ thông qua id
 
     router.post('/api/patient-book-appointment', patientController.postBookAppointment);   // lấy thông tin profile của bác sĩ thông qua id
+    router.post('/api/verify-book-appointment', patientController.postVerifyBookAppointment);   // verify, xac nhan dat lich thanh cong
 
 
     return app.use("/", router);
