@@ -3,6 +3,7 @@ import homeController from "../controllers/homeController";
 import userController from "../controllers/userController";
 import doctorController from "../controllers/doctorController";
 import patientController from "../controllers/patientController";
+import specialtyController from "../controllers/specialtyController";
 
 let router = express.Router();
 
@@ -47,6 +48,8 @@ let initWebRoutes = (app) => {
 
     router.post('/api/patient-book-appointment', patientController.postBookAppointment);   // lấy thông tin profile của bác sĩ thông qua id
     router.post('/api/verify-book-appointment', patientController.postVerifyBookAppointment);   // verify, xac nhan dat lich thanh cong
+
+    router.post('/api/create-new-specialty', specialtyController.createSpecialty);   // tạo chuyên khoa mới
 
 
     return app.use("/", router);
