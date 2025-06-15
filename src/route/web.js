@@ -50,6 +50,7 @@ let initWebRoutes = (app) => {
     router.post('/api/verify-book-appointment', patientController.postVerifyBookAppointment);   // verify, xac nhan dat lich thanh cong
 
     router.post('/api/create-new-specialty', specialtyController.createSpecialty);   // tạo chuyên khoa mới
+    router.get('/api/get-all-specialty', specialtyController.getAllSpecialty); // api lấy chuyên khoa
 
 
     return app.use("/", router);
