@@ -4,7 +4,7 @@ import userController from "../controllers/userController";
 import doctorController from "../controllers/doctorController";
 import patientController from "../controllers/patientController";
 import specialtyController from "../controllers/specialtyController";
-
+import clinicController from "../controllers/clinicController";
 let router = express.Router();
 
 // quy định hết route bên trong file web.js này 
@@ -52,6 +52,11 @@ let initWebRoutes = (app) => {
     router.post('/api/create-new-specialty', specialtyController.createSpecialty);   // tạo chuyên khoa mới
     router.get('/api/get-all-specialty', specialtyController.getAllSpecialty); // api lấy chuyên khoa
     router.get('/api/get-detail-specialty-by-id', specialtyController.getDetailSpecialtyById); // api lấy chuyên khoa
+
+
+    router.post('/api/create-new-clinic', clinicController.createClinic);   // tạo chuyên khoa mới
+    router.get('/api/get-all-clinic', clinicController.getAllClinic); // api lấy tat ca phong kham
+    router.get('/api/get-detail-clinic-by-id', clinicController.getDetailClinicById); // api lấy phong kham chi tiet
 
 
     return app.use("/", router);
