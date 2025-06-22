@@ -33,18 +33,18 @@ let initWebRoutes = (app) => {
     router.delete(`/api/delete-user`, userController.handleDeleteUser); // delete user
 
     router.get('/api/allcode', userController.getAllCode);
-    router.get('/api/top-doctor-home', doctorController.getTopDoctorHome); // api bác sĩ nổi bật (home)
 
+    router.get('/api/top-doctor-home', doctorController.getTopDoctorHome); // api bác sĩ nổi bật (home)
     router.get('/api/get-all-doctor', doctorController.getAllDoctor); // lấy tất cả bác sĩ
     router.post('/api/save-infor-doctors', doctorController.postInforDoctors); // lưu thông tin bác sĩ
     router.get('/api/get-detail-doctor-by-id', doctorController.getDetailDoctorById); // lấy thông tin chi tiết bác sĩ qua id
-
     router.post('/api/bulk-create-schedule', doctorController.bulkCreateSchedule); // tạo nhiều lịch khám của bác sĩ 
-
     router.get('/api/get-schedule-doctor-by-date', doctorController.getScheduleDoctorByDate);   // lấy tất cả lịch khám của bác sĩ
-
     router.get('/api/get-extra-infor-doctor-by-id', doctorController.getExtraInforDoctorById);   // lấy thông tin mở rộng (phòng khám, giá, địa chỉ) của bác sĩ thông qua id
     router.get('/api/get-profile-doctor-by-id', doctorController.getProfileDoctorById);   // lấy thông tin profile của bác sĩ thông qua id
+
+    router.get('/api/get-list-patient-for-doctor', doctorController.getListPatientForDoctor);   // lấy danh sách bệnh nhân từ bác sĩ
+
 
     router.post('/api/patient-book-appointment', patientController.postBookAppointment);   // lấy thông tin profile của bác sĩ thông qua id
     router.post('/api/verify-book-appointment', patientController.postVerifyBookAppointment);   // verify, xac nhan dat lich thanh cong

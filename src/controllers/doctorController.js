@@ -108,7 +108,22 @@ let getProfileDoctorById = async (req, res) => {
         console.log(e)
         return res.status(200).json({
             errCode: -1,
-            message: 'Error form server !!!'
+            message: 'Error from server !!!'
+        })
+
+    }
+}
+// lấy danh sách bệnh nhân từ bác sĩ
+let getListPatientForDoctor = async (req, res) => {
+    try {
+        let response = await doctorService.getListPatientForDoctorService(req.query.doctorId, req.query.date);
+        return res.status(200).json(response)
+
+    } catch (e) {
+        console.log(e)
+        return res.status(200).json({
+            errCode: -1,
+            message: 'Error from server !!!'
         })
 
     }
@@ -122,5 +137,6 @@ module.exports = {
     bulkCreateSchedule: bulkCreateSchedule,
     getScheduleDoctorByDate: getScheduleDoctorByDate,
     getExtraInforDoctorById: getExtraInforDoctorById,
-    getProfileDoctorById: getProfileDoctorById
+    getProfileDoctorById: getProfileDoctorById,
+    getListPatientForDoctor: getListPatientForDoctor,
 }

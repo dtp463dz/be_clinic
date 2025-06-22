@@ -489,7 +489,46 @@ const getProfileDoctorByIdService = (inputId) => {
         }
     })
 }
+// lấy danh sách bệnh nhân từ bác sĩ
+const getListPatientForDoctorService = (doctorId, date) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (!doctorId || !date) {
+                resolve({
+                    errCode: 1,
+                    errMessage: 'Missing required parameter doctorId or date'
+                })
+            } else {
+                let data = await db.Booking.findAll({
+                    where: {
+                        statusId: 'S2',
+                        doctorId: doctorId,
+                        date: date,
+                    },
+                    include: [
+                        {
+                            model: db.User, as: 'patientData',
+                            attributes: ['email', 'firstName', 'address', 'gender'], // lấy các trường được chỉ định
+                            include: [
+                                { model: db.Allcode, as: 'genderData', attributes: ['valueEn', 'valueVi'] },
+                            ]
+                        },
+                    ],
+                    raw: true,
+                    nest: true,
+                })
+                if (!data) data = {}
+                resolve({
+                    errCode: 0,
+                    data: data,
+                })
+            }
 
+        } catch (e) {
+            reject(e);
+        }
+    })
+}
 module.exports = {
     getTopDoctorHomeService: getTopDoctorHomeService,
     getAllDoctorService: getAllDoctorService,
@@ -499,5 +538,6 @@ module.exports = {
     getScheduleDoctorByDateService: getScheduleDoctorByDateService,
     getExtraInforDoctorByIdService: getExtraInforDoctorByIdService,
     getProfileDoctorByIdService: getProfileDoctorByIdService,
+    getListPatientForDoctorService: getListPatientForDoctorService,
 
 }
