@@ -511,8 +511,11 @@ const getListPatientForDoctorService = (doctorId, date) => {
                             attributes: ['email', 'firstName', 'address', 'gender'], // lấy các trường được chỉ định
                             include: [
                                 { model: db.Allcode, as: 'genderData', attributes: ['valueEn', 'valueVi'] },
+
                             ]
                         },
+                        { model: db.Allcode, as: 'timeTypeDataPatient', attributes: ['valueEn', 'valueVi'] },
+
                     ],
                     raw: true,
                     nest: true,
