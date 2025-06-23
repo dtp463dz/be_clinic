@@ -490,7 +490,7 @@ const getProfileDoctorByIdService = (inputId) => {
     })
 }
 // lấy danh sách bệnh nhân từ bác sĩ
-const getListPatientForDoctorService = (doctorId, date) => {
+const getListPatientForDoctorService = (doctorId, date, page, limit) => {
     return new Promise(async (resolve, reject) => {
         try {
             if (!doctorId || !date) {
@@ -498,35 +498,50 @@ const getListPatientForDoctorService = (doctorId, date) => {
                     errCode: 1,
                     errMessage: 'Missing required parameter doctorId or date'
                 })
-            } else {
-                let data = await db.Booking.findAll({
-                    where: {
-                        statusId: 'S2',
-                        doctorId: doctorId,
-                        date: date,
-                    },
-                    include: [
-                        {
-                            model: db.User, as: 'patientData',
-                            attributes: ['email', 'firstName', 'address', 'gender'], // lấy các trường được chỉ định
-                            include: [
-                                { model: db.Allcode, as: 'genderData', attributes: ['valueEn', 'valueVi'] },
-
-                            ]
-                        },
-                        { model: db.Allcode, as: 'timeTypeDataPatient', attributes: ['valueEn', 'valueVi'] },
-
-                    ],
-                    raw: true,
-                    nest: true,
-                })
-                if (!data) data = {}
-                resolve({
-                    errCode: 0,
-                    data: data,
-                })
             }
+            // đặt giá trị mặc định cho phân trang
+            const pageNumber = parseInt(page) || 1;
+            const pageSize = parseInt(limit) || 10;
+            const offset = (pageNumber - 1) * pageSize; // xác định vị trí bắt đầu của bản ghi
 
+            const { count, rows } = await db.Booking.findAndCountAll({
+                where: {
+                    statusId: 'S2',
+                    doctorId: doctorId,
+                    date: date,
+                },
+                include: [
+                    {
+                        model: db.User, as: 'patientData',
+                        attributes: ['email', 'firstName', 'address', 'gender'], // lấy các trường được chỉ định
+                        include: [
+                            { model: db.Allcode, as: 'genderData', attributes: ['valueEn', 'valueVi'] },
+
+                        ]
+                    },
+                    { model: db.Allcode, as: 'timeTypeDataPatient', attributes: ['valueEn', 'valueVi'] },
+
+                ],
+                limit: pageSize,
+                offset: offset,
+                raw: true,
+                nest: true,
+            });
+            // Tính toán thông tin phân trang
+            const totalPages = Math.ceil(count / pageSize);
+
+            resolve({
+                errCode: 0,
+                data: {
+                    data: rows,
+                    pagination: {
+                        totalItems: count,
+                        totalPages: totalPages,
+                        currentPage: pageNumber,
+                        pageSize: pageSize
+                    }
+                },
+            });
         } catch (e) {
             reject(e);
         }
