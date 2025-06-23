@@ -116,7 +116,8 @@ let getProfileDoctorById = async (req, res) => {
 // lấy danh sách bệnh nhân từ bác sĩ
 let getListPatientForDoctor = async (req, res) => {
     try {
-        let response = await doctorService.getListPatientForDoctorService(req.query.doctorId, req.query.date);
+        let { doctorId, date, page, limit } = req.query;
+        let response = await doctorService.getListPatientForDoctorService(doctorId, date, page, limit);
         return res.status(200).json(response)
 
     } catch (e) {
