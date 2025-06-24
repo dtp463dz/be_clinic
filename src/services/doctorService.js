@@ -1,6 +1,8 @@
 import db from "../models/index";
 import dotenv from 'dotenv';
-import _, { reject } from 'lodash';
+import _ from 'lodash';
+import emailService from "./emailService";
+
 dotenv.config();
 
 const MAX_NUMBER_SCHEDULE = process.env.MAX_NUMBER_SCHEDULE;
@@ -547,6 +549,45 @@ const getListPatientForDoctorService = (doctorId, date, page, limit) => {
         }
     })
 }
+
+// lưu thông tin modal hóa đơn khám bệnh 
+let sendConfirmService = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (!data.email || !data.doctorId || !data.patientId || !data.timeType) {
+                resolve({
+                    errCode: 1,
+                    errMessage: 'Missing required parameter doctorId or date'
+                })
+            } else {
+                // update patient status
+                let appointment = await db.Booking.findOne({
+                    where: {
+                        doctorId: data.doctorId,
+                        patientId: data.patientId,
+                        timeType: data.timeType,
+                        statusId: 'S2'
+                    },
+                    raw: false,
+
+                })
+                if (appointment) {
+                    appointment.statusId = 'S3';
+                    await appointment.save();
+                }
+                // send email confirm
+                await emailService.sendAttachment(data)
+                resolve({
+                    errCode: 0,
+                    errMessage: 'Gửi email thành công',
+                })
+            }
+
+        } catch (e) {
+            reject(e)
+        }
+    })
+}
 module.exports = {
     getTopDoctorHomeService: getTopDoctorHomeService,
     getAllDoctorService: getAllDoctorService,
@@ -557,5 +598,6 @@ module.exports = {
     getExtraInforDoctorByIdService: getExtraInforDoctorByIdService,
     getProfileDoctorByIdService: getProfileDoctorByIdService,
     getListPatientForDoctorService: getListPatientForDoctorService,
+    sendConfirmService: sendConfirmService,
 
 }

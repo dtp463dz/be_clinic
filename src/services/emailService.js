@@ -17,7 +17,7 @@ let sendSimpleEmail = (datasend) => {
     // Wrap in an async IIFE so we can use await.
     (async () => {
         const info = await transporter.sendMail({
-            from: '"DevPhuxz" <dinhphuc463tp@gmail.com>',  // sender address
+            from: '"Hệ thống Đặt lịch khám bệnh - Booking Health" <dinhphuc463tp@gmail.com>',  // sender address
             to: datasend.reciverEmail,          // list of receivers
             subject: "🔔 Xác nhận lịch khám bệnh - Booking Health", // subject line
             html: `
@@ -48,8 +48,55 @@ let sendSimpleEmail = (datasend) => {
 
 }
 
+let sendAttachment = (dataSend) => {
+    return new Promise((resolve, reject) => {
+        try {
+            // Create a test account or replace with real credentials.
+            const transporter = nodemailer.createTransport({
+                host: "smtp.gmail.com",
+                port: 587,
+                secure: false, // true for 465, false for other ports
+                auth: {
+                    user: process.env.EMAIL_APP,
+                    pass: process.env.EMAIL_APP_PASSWORD,
+                },
+            });
 
+            // Wrap in an async IIFE so we can use await.
+            (async () => {
+                const info = await transporter.sendMail({
+                    from: '"Hệ thống Đặt lịch khám bệnh - Booking Health" <dinhphuc463tp@gmail.com>',  // sender address
+                    to: dataSend.email,          // list of receivers
+                    subject: "🔔 Kết quả đặt lịch khám bệnh - Booking Health", // subject line
+                    html: `
+                        <div style="font-family: Arial, sans-serif; font-size: 16px; color: #333;">
+                            <h2 style="color: #2a9d8f;">Xin chào ${dataSend.patientName},</h2>
+                            <p>Bạn nhận được email này vì đã đặt lịch khám bệnh online trên hệ thống <strong>Booking Health</strong> thành công.</p>
+                            <h3>📋 Thông tin hóa đơn được gửi trong file đính kèm:</h3>
+                            <p style="margin-top: 30px;">Nếu bạn không thực hiện yêu cầu này, hãy bỏ qua email này.</p>
+                            <hr/>
+                            <p style="font-size: 14px; color: #888;">Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi.</p>
+                        </div>
+                        `, // HTML body
+                    attachments: [
+                        {
+                            filename: `KetQuaDatLich ${dataSend.patientId} - ${new Date().getTime()}.PNG`,
+                            content: dataSend.image.split('base64,')[1],
+                            encoding: 'base64'
+                        }
+                    ],
+
+                });
+                console.log("Attachment Email sent:", info.messageId);
+                resolve(info);
+            })();
+        } catch (e) {
+            reject(e)
+        }
+    })
+}
 
 module.exports = {
-    sendSimpleEmail: sendSimpleEmail
+    sendSimpleEmail: sendSimpleEmail,
+    sendAttachment: sendAttachment
 }
