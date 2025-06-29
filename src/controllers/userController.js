@@ -41,6 +41,9 @@ let handleLogin = async (req, res) => {
 // lay tat ca users
 let handleGetAllUsers = async (req, res) => {
     let id = req.query.id; // all: lấy tất cả người dùng, id: lấy chính xác người dùng
+    let page = parseInt(req.query.page) || 1; // Default to page 1
+    let limit = parseInt(req.query.limit) || 10; // Default to 10 items per page
+
     if (!id) {
         return res.status(200).json({
             errCode: 1,
@@ -48,12 +51,12 @@ let handleGetAllUsers = async (req, res) => {
             users: []
         })
     }
-    let users = await userService.getAllUsers(id);
+    let result = await userService.getAllUsers(id, page, limit);
     // console.log('check users: ', users)
     return res.status(200).json({
         errCode: 0,
         errMessage: 'OK',
-        users
+        ...result
     })
 }
 

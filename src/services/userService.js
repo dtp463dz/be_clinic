@@ -126,27 +126,45 @@ let checkUserEmail = (userEmail) => {
 };
 
 // lay tat ca users
-let getAllUsers = (userId) => {
+let getAllUsers = (userId, page, limit) => {
     return new Promise(async (resolve, reject) => {
         try {
-            let users = '';
+            let result = {};
             // check
             if (userId === 'ALL') {
-                users = await db.User.findAll({
+                const offset = (page - 1) * limit;
+                // Get paginated users and total count
+                const { count, rows } = await db.User.findAndCountAll({
                     attributes: {
                         exclude: ['password'] // hide password
-                    }
-                })
+                    },
+                    offset: offset,
+                    limit: limit
+                });
+                result = {
+                    users: rows,
+                    totalItems: count,
+                    totalPages: Math.ceil(count / limit),
+                    currentPage: page,
+                    limit: limit
+                };
             }
             if (userId && userId !== 'ALL') {
-                users = await db.User.findOne({
+                const user = await db.User.findOne({
                     where: { id: userId },
                     attributes: {
                         exclude: ['password'] // hide password
                     }
-                })
+                });
+                result = {
+                    users: user ? [user] : [],
+                    totalItems: user ? 1 : 0,
+                    totalPages: 1,
+                    currentPage: 1,
+                    limit: 1
+                };
             }
-            resolve(users)
+            resolve(result)
         } catch (e) {
             reject(e);
         }
