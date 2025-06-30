@@ -31,12 +31,22 @@ let createSpecialtyService = (data) => {
 }
 
 // lay all chuyên khoa
-let getAllSpecialtyService = () => {
+let getAllSpecialtyService = (page = 1, limit = 10) => {
     return new Promise(async (resolve, reject) => {
         try {
-            let data = await db.Specialty.findAll({
+            // Chuyển đổi page và limit thành số nguyên
+            const pageNum = parseInt(page);
+            const limitNum = parseInt(limit);
 
-            });
+            // Tính offset
+            const offset = (pageNum - 1) * limitNum;
+            // lấy dữ liệu với phân trang
+            let { count, rows: data } = await db.Specialty.findAndCountAll({
+                offset: offset,
+                limit: limitNum,
+                order: [['id', 'ASC']] // Sắp xếp theo id tăng dần
+            })
+
             if (data && data.length > 0) {
                 // console.log('check data: ', data)
                 data.map(item => {
@@ -44,10 +54,17 @@ let getAllSpecialtyService = () => {
                     return item;
                 })
             }
+            // Tính tổng số trang
+            const totalPages = Math.ceil(count / limitNum);
             resolve({
                 errCode: 0,
                 errMessage: 'Lấy chuyên khoa thành công',
-                data
+                data: {
+                    specialties: data,
+                    currentPage: pageNum,
+                    totalPages: totalPages,
+                    totalItems: count
+                }
             })
 
         } catch (e) {

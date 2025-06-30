@@ -17,13 +17,14 @@ let createSpecialty = async (req, res) => {
 // Lấy tất cả chuyên khoa
 let getAllSpecialty = async (req, res) => {
     try {
-        let response = await specialtyService.getAllSpecialtyService();
+        const { page = 1, limit = 10 } = req.query;
+        let response = await specialtyService.getAllSpecialtyService(page, limit);
         return res.status(200).json(response)
     } catch (e) {
         console.log(e)
         return res.status(200).json({
             errCode: -1,
-            errMessage: 'Error from server...'
+            errMessage: 'Lỗi từ server...'
         })
     }
 }
