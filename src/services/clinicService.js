@@ -109,8 +109,30 @@ let getDetailClinicByIdService = (inputId) => {
     })
 }
 
+// Xóa phòng khám
+let handleDeleteClinicService = async (clinicId) => {
+    try {
+        let deletedRows = await db.Clinic.destroy({
+            where: { id: clinicId }
+        });
+        if (deletedRows === 0) {
+            return {
+                errCode: 2,
+                errMessage: 'Phòng khám không tồn tại'
+            };
+        }
+        return {
+            errCode: 0,
+            errMessage: 'Xóa phòng khám thành công!'
+        };
+    } catch (e) {
+        throw new Error('Lỗi khi xóa phòng khám: ' + e.message);
+    }
+};
+
 module.exports = {
     createClinicService: createClinicService,
     getAllClinicService: getAllClinicService,
-    getDetailClinicByIdService: getDetailClinicByIdService
+    getDetailClinicByIdService: getDetailClinicByIdService,
+    handleDeleteClinicService: handleDeleteClinicService,
 }

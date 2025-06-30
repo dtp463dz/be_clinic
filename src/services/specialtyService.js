@@ -123,8 +123,31 @@ let getDetailSpecialtyByIdService = (inputId, location) => {
     })
 }
 
+// xóa chuyên khoa
+let handleDeleteSpecialtyService = async (specialtyId) => {
+    try {
+        let deletedRows = await db.Specialty.destroy({
+            where: { id: specialtyId }
+        });
+        if (deletedRows === 0) {
+            return {
+                errCode: 2,
+                errMessage: 'Chuyên khoa không tồn tại'
+            };
+        }
+        return {
+            errCode: 0,
+            errMessage: 'Xóa chuyên khoa thành công!'
+        };
+    } catch (e) {
+        throw new Error('Lỗi khi xóa chuyên khoa: ' + e.message);
+    }
+}
+
 module.exports = {
     createSpecialtyService: createSpecialtyService,
     getAllSpecialtyService: getAllSpecialtyService,
-    getDetailSpecialtyByIdService: getDetailSpecialtyByIdService
+    getDetailSpecialtyByIdService: getDetailSpecialtyByIdService,
+    handleDeleteSpecialtyService: handleDeleteSpecialtyService,
+
 }

@@ -42,9 +42,31 @@ let getDetailClinicById = async (req, res) => {
     }
 }
 
+// Xóa phòng khám 
+let handleDeleteClinic = async (req, res) => {
+    const clinicId = req.body.id;
+    if (!clinicId) {
+        return res.status(400).json({
+            errCode: 1,
+            errMessage: 'Thiếu tham số id phòng khám!'
+        });
+    }
+    try {
+        let message = await clinicService.handleDeleteClinicService(clinicId);
+        return res.status(message.errCode === 0 ? 200 : 404).json(message);
+    } catch (e) {
+        return res.status(500).json({
+            errCode: 3,
+            errMessage: 'Lỗi server khi xóa phòng khám'
+        });
+    }
+}
+
 module.exports = {
     createClinic: createClinic,
     getAllClinic: getAllClinic,
-    getDetailClinicById: getDetailClinicById
+    getDetailClinicById: getDetailClinicById,
+    handleDeleteClinic: handleDeleteClinic,
+
 
 } 

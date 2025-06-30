@@ -43,8 +43,30 @@ let getDetailSpecialtyById = async (req, res) => {
     }
 }
 
+// xóa chuyên khoa 
+let handleDeleteSpecialty = async (req, res) => {
+    const specialtyId = req.body.id;
+    if (!specialtyId) {
+        return res.status(400).json({
+            errCode: 1,
+            errMessage: 'Thiếu tham số id chuyên khoa!'
+        });
+    }
+    try {
+        let message = await specialtyService.handleDeleteSpecialtyService(specialtyId);
+        return res.status(message.errCode === 0 ? 200 : 404).json(message);
+    } catch (e) {
+        return res.status(500).json({
+            errCode: 3,
+            errMessage: 'Lỗi server khi xóa phòng khám'
+        });
+    }
+}
+
 module.exports = {
     createSpecialty: createSpecialty,
     getAllSpecialty: getAllSpecialty,
-    getDetailSpecialtyById: getDetailSpecialtyById
+    getDetailSpecialtyById: getDetailSpecialtyById,
+    handleDeleteSpecialty: handleDeleteSpecialty,
+
 } 
