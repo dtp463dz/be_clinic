@@ -17,7 +17,8 @@ let createClinic = async (req, res) => {
 // Lấy tất cả phòng khám
 let getAllClinic = async (req, res) => {
     try {
-        let response = await clinicService.getAllClicService();
+        const { page = 1, limit = 10 } = req.query;
+        let response = await clinicService.getAllClinicService(page, limit);
         return res.status(200).json(response)
     } catch (e) {
         console.log(e)
