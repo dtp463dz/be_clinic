@@ -144,10 +144,48 @@ let handleDeleteSpecialtyService = async (specialtyId) => {
     }
 }
 
+// edit chuyen khoa
+let updateSpecialtyService = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (!data.name || !data.descriptionHTML || !data.descriptionMarkdown || !data.image) {
+                resolve({
+                    errCode: 2,
+                    errMessage: 'Chuyên khoa không hợp lệ'
+                })
+            }
+            // update
+            let specialty = await db.Specialty.findOne({
+                where: { id: data.id },
+                raw: false
+            })
+            if (specialty) {
+                specialty.name = data.name;
+                specialty.descriptionHTML = data.descriptionHTML;
+                specialty.descriptionMarkdown = data.descriptionMarkdown;
+                specialty.image = data.image;
+                await specialty.save();
+                resolve({
+                    errCode: 0,
+                    message: 'Cập nhật chuyên khoa thành công'
+                })
+            } else {
+                resolve({
+                    errCode: 1,
+                    message: 'Cập nhật chuyên khoa không thành công'
+                });
+            }
+        } catch (e) {
+            reject(e)
+        }
+    })
+}
+
 module.exports = {
     createSpecialtyService: createSpecialtyService,
     getAllSpecialtyService: getAllSpecialtyService,
     getDetailSpecialtyByIdService: getDetailSpecialtyByIdService,
     handleDeleteSpecialtyService: handleDeleteSpecialtyService,
+    updateSpecialtyService: updateSpecialtyService,
 
 }

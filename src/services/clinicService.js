@@ -130,9 +130,47 @@ let handleDeleteClinicService = async (clinicId) => {
     }
 };
 
+// chỉnh sửa phòng khám
+let updateClinicService = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (!data.name || !data.address || !data.descriptionHTML || !data.descriptionMarkdown || !data.image) {
+                resolve({
+                    errCode: 2,
+                    errMessage: 'Phòng khám không hợp lệ'
+                })
+            }
+            // update
+            let clinic = await db.Clinic.findOne({
+                where: { id: data.id },
+                raw: false
+            })
+            if (clinic) {
+                clinic.name = data.name;
+                clinic.address = data.address;
+                clinic.descriptionHTML = data.descriptionHTML;
+                clinic.descriptionMarkdown = data.descriptionMarkdown;
+                clinic.image = data.image;
+                await clinic.save();
+                resolve({
+                    errCode: 0,
+                    message: 'Cập nhật phòng khám thành công'
+                })
+            } else {
+                resolve({
+                    errCode: 1,
+                    message: 'Cập nhật phòng khám không thành công'
+                });
+            }
+        } catch (e) {
+            reject(e)
+        }
+    })
+}
 module.exports = {
     createClinicService: createClinicService,
     getAllClinicService: getAllClinicService,
     getDetailClinicByIdService: getDetailClinicByIdService,
     handleDeleteClinicService: handleDeleteClinicService,
+    updateClinicService: updateClinicService
 }

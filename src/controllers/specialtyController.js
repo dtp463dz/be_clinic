@@ -63,10 +63,18 @@ let handleDeleteSpecialty = async (req, res) => {
     }
 }
 
+// chỉnh sửa chuyên khoa
+let handleEditspecialty = async (req, res) => {
+    let data = req.body;
+    let message = await specialtyService.updateSpecialtyService(data);
+    return res.status(200).json(message);
+}
+
 module.exports = {
     createSpecialty: createSpecialty,
     getAllSpecialty: getAllSpecialty,
     getDetailSpecialtyById: getDetailSpecialtyById,
     handleDeleteSpecialty: handleDeleteSpecialty,
+    handleEditspecialty: handleEditspecialty,
 
 } 
