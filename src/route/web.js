@@ -7,6 +7,7 @@ import specialtyController from "../controllers/specialtyController";
 import clinicController from "../controllers/clinicController";
 import patientPDFController from "../controllers/patientPDFController";
 import searchController from "../controllers/searchController";
+import handbookController from "../controllers/handbookController";
 
 let router = express.Router();
 
@@ -65,6 +66,8 @@ let initWebRoutes = (app) => {
     router.get('/api/get-detail-clinic-by-id', clinicController.getDetailClinicById); // api lấy phong kham chi tiet
     router.delete(`/api/delete-clinic`, clinicController.handleDeleteClinic); // api xóa phòng khám
     router.put(`/api/edit-clinic`, clinicController.handleEditClinic);  // edit phòng khám
+
+    router.post('/api/create-new-handbook', handbookController.createHandBook)
 
     router.get('/api/search', searchController.search); // chức năng tìm kiếm
 
