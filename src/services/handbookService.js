@@ -175,8 +175,113 @@ let getDetailHandBookByIdService = (inputId) => {
     })
 }
 
+let updateHandBookService = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (!data.author || !data.title || !data.publicationDate) {
+                resolve({
+                    errCode: 2,
+                    errMessage: 'Cẩm nang không hợp lệ'
+                })
+            }
+            // Kiểm tra title đã tồn tại (ngoại trừ bản ghi hiện tại)
+            const existingHandBook = await db.HandBook.findOne({
+                where: {
+                    title: data.title,
+                    id: {
+                        [db.Sequelize.Op.ne]: data.id
+                    } // ko kiểm tra bản ghi hiện tại
+                }
+            })
+            if (existingHandBook) {
+                return resolve({
+                    errCode: 3,
+                    errMessage: 'Tiêu đề cẩm nang đã tồn tại'
+                });
+            }
+            // Xử lý publicationDate
+            let publicationDateStr = null;
+            if (data.publicationDate) {
+                const timestamp = Number(data.publicationDate);
+                if (!isNaN(timestamp) && timestamp > 0) {
+                    publicationDateStr = timestamp.toString();
+                } else {
+                    console.log("Invalid publicationDate:", data.publicationDate);
+                    return resolve({
+                        errCode: 4,
+                        errMessage: 'publicationDate phải là timestamp hợp lệ'
+                    });
+                }
+            }
+            // Xử lý lastUpdateDate
+            let lastUpdateDateStr = null;
+            if (data.lastUpdateDate) {
+                const timestamp = Number(data.lastUpdateDate);
+                if (!isNaN(timestamp) && timestamp > 0) {
+                    lastUpdateDateStr = timestamp.toString();
+                } else {
+                    console.log("Invalid lastUpdateDate:", data.lastUpdateDate);
+                    return resolve({
+                        errCode: 4,
+                        errMessage: 'lastUpdateDate phải là timestamp hợp lệ'
+                    });
+                }
+            }
+            let handbooks = await db.HandBook.findOne({
+                where: { id: data.id },
+                raw: false
+            })
+            if (handbooks) {
+                handbooks.author = data.author;
+                handbooks.title = data.title;
+                handbooks.descriptionHTML = data.descriptionHTML;
+                handbooks.descriptionMarkdown = data.descriptionMarkdown;
+                handbooks.image = data.image;
+                handbooks.publicationDate = publicationDateStr;
+                handbooks.lastUpdateDate = lastUpdateDateStr;
+                await handbooks.save();
+                resolve({
+                    errCode: 0,
+                    errMessage: 'Cập nhật cẩm nang thành công'
+                })
+            } else {
+                resolve({
+                    errCode: 1,
+                    errMessage: 'Cập nhật cẩm nang không thành công'
+                })
+            }
+        } catch (e) {
+            reject({
+                errCode: -1,
+                errMessage: 'Lỗi server: ' + e.message
+            });
+        }
+    })
+}
+
+let handleDeleteHandBookService = async (handbookId) => {
+    try {
+        let deleteRows = await db.HandBook.destroy({
+            where: { id: handbookId }
+        })
+        if (deleteRows === 0) {
+            return {
+                errCode: 2,
+                errMessage: 'Cẩm nang không tồn tại'
+            };
+        }
+        return {
+            errCode: 0,
+            errMessage: 'Xóa cẩm nang thành công'
+        }
+    } catch (e) {
+        throw new Error('Lỗi khi xóa phòng khám: ' + e.message)
+    }
+}
 module.exports = {
     createHandBookService: createHandBookService,
     getAllHandBookService: getAllHandBookService,
     getDetailHandBookByIdService: getDetailHandBookByIdService,
+    updateHandBookService: updateHandBookService,
+    handleDeleteHandBookService: handleDeleteHandBookService,
 } 

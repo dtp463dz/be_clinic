@@ -71,6 +71,8 @@ let initWebRoutes = (app) => {
     router.post('/api/create-new-handbook', handbookController.createHandBook) // tao cam nang moi
     router.get('/api/get-all-handbook', handbookController.getAllHandBook)     // lat tat ca cam nang
     router.get('/api/get-detail-handbook-by-id', handbookController.getDetailHandBookById); // api lấy cam nang chi tiet
+    router.put(`/api/edit-handbook`, handbookController.handleEditHandBook);  // edit cam nang
+    router.delete(`/api/delete-handbook`, handbookController.handleDeleteHandBook); // api xóa phòng khám
 
     // tim kiem
     router.get('/api/search', searchController.search); // chức năng tìm kiếm
