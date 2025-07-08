@@ -31,12 +31,11 @@ module.exports = {
                 allowNull: true,
             },
             publicationDate: {
-                type: Sequelize.DATE,
+                type: Sequelize.STRING,
                 allowNull: false,
-                defaultValue: Sequelize.NOW,
             },
             lastUpdateDate: {
-                type: Sequelize.DATE,
+                type: Sequelize.STRING,
                 allowNull: true,
             },
             createdAt: {

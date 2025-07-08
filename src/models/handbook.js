@@ -19,8 +19,8 @@ module.exports = (sequelize, DataTypes) => {
         descriptionHTML: DataTypes.TEXT('long'),
         descriptionMarkdown: DataTypes.TEXT('long'),
         image: DataTypes.STRING,
-        publicationDate: DataTypes.DATE,
-        lastUpdateDate: DataTypes.DATE,
+        publicationDate: DataTypes.STRING,
+        lastUpdateDate: DataTypes.STRING,
     }, {
         sequelize,
         modelName: 'HandBook',
