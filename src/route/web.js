@@ -67,9 +67,12 @@ let initWebRoutes = (app) => {
     router.delete(`/api/delete-clinic`, clinicController.handleDeleteClinic); // api xóa phòng khám
     router.put(`/api/edit-clinic`, clinicController.handleEditClinic);  // edit phòng khám
 
+    // cam nang
     router.post('/api/create-new-handbook', handbookController.createHandBook) // tao cam nang moi
     router.get('/api/get-all-handbook', handbookController.getAllHandBook)     // lat tat ca cam nang
+    router.get('/api/get-detail-handbook-by-id', handbookController.getDetailHandBookById); // api lấy cam nang chi tiet
 
+    // tim kiem
     router.get('/api/search', searchController.search); // chức năng tìm kiếm
 
     // pdf

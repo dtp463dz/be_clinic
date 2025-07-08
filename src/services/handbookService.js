@@ -130,7 +130,53 @@ let getAllHandBookService = (page, limit) => {
     })
 }
 
+let getDetailHandBookByIdService = (inputId) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (!inputId) {
+                resolve({
+                    errCode: 1,
+                    errMessage: 'Thiếu trường bắt buộc '
+                })
+            } else {
+                let data = await db.HandBook.findOne({
+                    where: {
+                        id: inputId
+                    },
+                    attributes: [
+                        'id',
+                        'author',
+                        'title',
+                        'descriptionHTML',
+                        'descriptionMarkdown',
+                        'image',
+                        'publicationDate',
+                        'lastUpdateDate',
+                    ],
+                })
+                if (!data) {
+                    return resolve({
+                        errCode: 404,
+                        errMessage: 'Không tìm thấy cẩm nang với ID này'
+                    })
+                }
+                resolve({
+                    errCode: 0,
+                    errMessage: 'Lấy cẩm nang thành công',
+                    data
+                })
+            }
+        } catch (e) {
+            reject({
+                errCode: -1,
+                errMessage: 'Lỗi server: ' + e.message
+            });
+        }
+    })
+}
+
 module.exports = {
     createHandBookService: createHandBookService,
     getAllHandBookService: getAllHandBookService,
+    getDetailHandBookByIdService: getDetailHandBookByIdService,
 } 
