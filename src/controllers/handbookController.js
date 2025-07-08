@@ -14,7 +14,21 @@ let createHandBook = async (req, res) => {
     }
 }
 
+let getAllHandBook = async (req, res) => {
+    try {
+        const { page = 1, limit = 10 } = req.query;
+        let response = await handbookService.getAllHandBookService(page, limit);
+        return res.status(response.errCode === 0 ? 200 : 400).json(response);
+    } catch (e) {
+        return res.status(500).json({
+            errCode: -1,
+            errMessage: 'Error from server... ' + e.message
+        })
+    }
+}
 
 module.exports = {
     createHandBook: createHandBook,
+    getAllHandBook: getAllHandBook,
+
 } 

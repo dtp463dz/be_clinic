@@ -61,13 +61,14 @@ let initWebRoutes = (app) => {
     router.put(`/api/edit-specialty`, specialtyController.handleEditspecialty);  // edit chuyên khoa
 
 
-    router.post('/api/create-new-clinic', clinicController.createClinic);   // tạo chuyên khoa mới
+    router.post('/api/create-new-clinic', clinicController.createClinic);   // tạo phong kham mới
     router.get('/api/get-all-clinic', clinicController.getAllClinic); // api lấy tat ca phong kham
     router.get('/api/get-detail-clinic-by-id', clinicController.getDetailClinicById); // api lấy phong kham chi tiet
     router.delete(`/api/delete-clinic`, clinicController.handleDeleteClinic); // api xóa phòng khám
     router.put(`/api/edit-clinic`, clinicController.handleEditClinic);  // edit phòng khám
 
-    router.post('/api/create-new-handbook', handbookController.createHandBook)
+    router.post('/api/create-new-handbook', handbookController.createHandBook) // tao cam nang moi
+    router.get('/api/get-all-handbook', handbookController.getAllHandBook)     // lat tat ca cam nang
 
     router.get('/api/search', searchController.search); // chức năng tìm kiếm
 

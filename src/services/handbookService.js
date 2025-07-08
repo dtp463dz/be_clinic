@@ -3,10 +3,10 @@ import db from "../models/index";
 let createHandBookService = (data) => {
     return new Promise(async (resolve, reject) => {
         try {
-            if (!data.author || !data.author || !data.publicationDate) {
+            if (!data.author || !data.title || !data.publicationDate) {
                 resolve({
                     errCode: 1,
-                    errMessage: 'Thiếu các trường bắt buộc'
+                    errMessage: 'Thiếu các trường bắt buộc: author, title, publicationDate'
                 })
             }
             // Kiểm tra title đã tồn tại chưa
@@ -21,6 +21,32 @@ let createHandBookService = (data) => {
                     errMessage: 'Tiêu đề cẩm nang đã tồn tại'
                 })
             }
+            let publicationDateStr = null;
+            if (data.publicationDate) {
+                const timestamp = Number(data.publicationDate);
+                if (!isNaN(timestamp) && timestamp > 0) {
+                    publicationDateStr = timestamp.toString();
+                } else {
+                    console.log("Invalid publicationDate:", data.publicationDate);
+                    return resolve({
+                        errCode: 3,
+                        errMessage: 'publicationDate phải là timestamp hợp lệ'
+                    });
+                }
+            }
+            let lastUpdateDateStr = null;
+            if (data.lastUpdateDate) {
+                const timestamp = Number(data.lastUpdateDate);
+                if (!isNaN(timestamp) && timestamp > 0) {
+                    lastUpdateDateStr = timestamp.toString();
+                } else {
+                    console.log("Invalid lastUpdateDate:", data.lastUpdateDate);
+                    return resolve({
+                        errCode: 3,
+                        errMessage: 'lastUpdateDate phải là timestamp hợp lệ'
+                    });
+                }
+            }
             // Tạo mới
             const handbook = await db.HandBook.create({
                 author: data.author,
@@ -28,8 +54,8 @@ let createHandBookService = (data) => {
                 descriptionHTML: data.descriptionHTML,
                 descriptionMarkdown: data.descriptionMarkdown,
                 image: data.image,
-                publicationDate: data.publicationDate,
-                lastUpdateDate: data.lastUpdateDate || null,
+                publicationDate: publicationDateStr,
+                lastUpdateDate: lastUpdateDateStr,
             });
             resolve({
                 errCode: 0,
@@ -46,6 +72,65 @@ let createHandBookService = (data) => {
     })
 }
 
+let getAllHandBookService = (page, limit) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const pageNum = parseInt(page) || 1;
+            const limitNum = parseInt(limit) || 10;
+            const offset = (pageNum - 1) * limitNum;
+
+            let { count, rows: data } = await db.HandBook.findAndCountAll({
+                attributes: [
+                    'id',
+                    'author',
+                    'title',
+                    'descriptionHTML',
+                    'descriptionMarkdown',
+                    'image',
+                    'publicationDate',
+                    'lastUpdateDate',
+                    'createdAt',
+                    'updatedAt'
+                ],
+                offset: offset,
+                limit: limitNum,
+                order: [['publicationDate', 'DESC']]
+            })
+            const totalPages = Math.ceil(count / limitNum);
+            // Xử lý image và format ngày
+            if (data && data.length > 0) {
+                data = data.map(item => {
+                    // Chỉ xử lý image nếu không phải null
+                    if (item.image) {
+                        item.image = Buffer.from(item.image, 'base64').toString('binary');
+                    }
+                    // Chuyển chuỗi timestamp thành định dạng ngày (nếu cần)
+                    item.publicationDate = item.publicationDate
+                        ? new Date(parseInt(item.publicationDate)).toISOString()
+                        : null;
+                    item.lastUpdateDate = item.lastUpdateDate
+                        ? new Date(parseInt(item.lastUpdateDate)).toISOString()
+                        : null;
+                    return item;
+                });
+            }
+            resolve({
+                errCode: 0,
+                errMessage: 'Lấy danh sách cẩm nang thành công',
+                data: {
+                    handbooks: data,
+                    totalItems: count,
+                    totalPages: totalPages,
+                    currentPage: pageNum,
+                }
+            });
+        } catch (e) {
+            reject(e)
+        }
+    })
+}
+
 module.exports = {
     createHandBookService: createHandBookService,
+    getAllHandBookService: getAllHandBookService,
 } 
