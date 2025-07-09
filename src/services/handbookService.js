@@ -160,6 +160,10 @@ let getDetailHandBookByIdService = (inputId) => {
                         errMessage: 'Không tìm thấy cẩm nang với ID này'
                     })
                 }
+                // Xử lý image giống getAllHandBookService
+                if (data.image) {
+                    data.image = Buffer.from(data.image, 'base64').toString('binary');
+                }
                 resolve({
                     errCode: 0,
                     errMessage: 'Lấy cẩm nang thành công',
