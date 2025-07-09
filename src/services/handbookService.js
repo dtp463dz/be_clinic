@@ -3,10 +3,10 @@ import db from "../models/index";
 let createHandBookService = (data) => {
     return new Promise(async (resolve, reject) => {
         try {
-            if (!data.author || !data.title || !data.publicationDate) {
+            if (!data.author || !data.title || !data.publicationDate || !data.image) {
                 resolve({
                     errCode: 1,
-                    errMessage: 'Thiếu các trường bắt buộc: author, title, publicationDate'
+                    errMessage: 'Thiếu các trường bắt buộc: author, title, publicationDate, image'
                 })
             }
             // Kiểm tra title đã tồn tại chưa

@@ -27,8 +27,7 @@ module.exports = {
                 allowNull: true,
             },
             image: {
-                type: Sequelize.STRING,
-                allowNull: true,
+                type: Sequelize.BLOB('long'),
             },
             publicationDate: {
                 type: Sequelize.STRING,
