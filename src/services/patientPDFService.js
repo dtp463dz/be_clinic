@@ -2,12 +2,24 @@ const PDFDocument = require('pdfkit');
 const fs = require('fs');
 const path = require('path');
 const db = require('../models');
+import { generatePDF } from '../utils/pdfDesign';
+
+// Hàm chuyển timestamp sang định dạng dd/mm/yyyy
+const formatDate = (timestamp) => {
+    if (!timestamp || isNaN(timestamp)) return 'N/A';
+    const date = new Date(Number(timestamp));
+    if (isNaN(date.getTime())) return 'N/A';
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+};
 
 let generatePatientPDFService = async (bookingId) => {
     try {
         // 1. Truy xuất dữ liệu
         const booking = await db.Booking.findOne({
-            where: { id: bookingId, statusId: 'S2' }, // Trạng thái đã khám
+            where: { id: bookingId, statusId: 'S2' },
             attributes: ['id', 'date', 'timeType', 'doctorId', 'patientId', 'statusId'],
             include: [
                 {
@@ -46,42 +58,28 @@ let generatePatientPDFService = async (bookingId) => {
         });
 
         // 2. Chuẩn bị tạo PDF
+        const pdfData = {
+            patientName: `${booking.patientData.firstName} ${booking.patientData.lastName}`,
+            patientEmail: booking.patientData.email,
+            patientPhone: booking.patientData.phonenumber,
+            patientAddress: booking.patientData.address,
+            gender: booking.patientData.genderData?.valueVi || 'N/A',
+            bookingId: booking.id,
+            bookingDate: formatDate(booking.date),
+            timeType: booking.timeTypeDataPatient?.valueVi || 'N/A',
+            doctorName: `${doctor.firstName} ${doctor.lastName}`,
+            clinicName: doctor.Doctor_Infor?.nameClinic || 'N/A',
+            clinicAddress: doctor.Doctor_Infor?.addressClinic || 'N/A'
+        };
+
+        // 3. Thiết kế PDF
         const pdfDir = path.join(__dirname, '../../public/pdfs');
         const fileName = `medical_record_${booking.id}.pdf`;
         const filePath = path.join(pdfDir, fileName);
 
         fs.mkdirSync(pdfDir, { recursive: true });
 
-        const doc = new PDFDocument({ size: 'A4', margin: 50 });
-
-        // ✅ Nhúng font Roboto có hỗ trợ tiếng Việt
-        const fontPath = path.join(__dirname, '../assets/fonts/Roboto-Regular.ttf');
-        doc.registerFont('Roboto', fontPath);
-        doc.font('Roboto'); // sử dụng font Roboto cho toàn bộ nội dung
-
-        const stream = fs.createWriteStream(filePath);
-        doc.pipe(stream);
-
-        // 3. Viết nội dung PDF
-        doc.fontSize(20).text('PHIẾU KHÁM BỆNH', { align: 'center' }).moveDown();
-
-        doc.fontSize(14).text(`Mã lịch khám: ${booking.id}`);
-        // doc.text(`Ngày khám: ${booking.date}`);
-        doc.text(`Khung giờ: ${booking.timeTypeDataPatient?.valueVi || 'N/A'}`).moveDown();
-
-        doc.fontSize(16).text('Thông tin bệnh nhân').moveDown(0.3);
-        doc.fontSize(12).text(`Họ tên: ${booking.patientData.firstName} ${booking.patientData.lastName}`);
-        doc.text(`Email: ${booking.patientData.email}`);
-        doc.text(`Số điện thoại: ${booking.patientData.phonenumber}`);
-        doc.text(`Địa chỉ: ${booking.patientData.address}`);
-        doc.text(`Giới tính: ${booking.patientData.genderData?.valueVi || 'N/A'}`).moveDown();
-
-        doc.fontSize(16).text('Thông tin bác sĩ').moveDown(0.3);
-        doc.fontSize(12).text(`Bác sĩ: ${doctor.firstName} ${doctor.lastName}`);
-        doc.text(`Phòng khám: ${doctor.Doctor_Infor?.nameClinic || 'N/A'}`);
-        doc.text(`Địa chỉ phòng khám: ${doctor.Doctor_Infor?.addressClinic || 'N/A'}`);
-
-        doc.end();
+        await generatePDF(pdfData, filePath);
 
         return {
             errCode: 0,
