@@ -1,0 +1,167 @@
+openapi: 3.0.0
+info:
+  title: Clinic API
+  version: 1.0.0
+  description: API documentation for Clinic Management System
+
+servers:
+  - url: http://localhost:8080
+
+paths:
+  /api/get-all-users:
+    get:
+      summary: Lấy tất cả người dùng
+      parameters:
+        - in: query
+          name: id
+          schema:
+            type: string
+          required: true
+        - in: query
+          name: page
+          schema:
+            type: integer
+        - in: query
+          name: limit
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Thành công
+
+  /api/create-new-user:
+    post:
+      summary: Tạo mới người dùng
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+                firstName:
+                  type: string
+                lastName:
+                  type: string
+                address:
+                  type: string
+      responses:
+        200:
+          description: Thành công
+
+  /api/login:
+    post:
+      summary: Đăng nhập
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        200:
+          description: Đăng nhập thành công
+
+  /api/get-all-clinic:
+    get:
+      summary: Lấy danh sách phòng khám
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+        - in: query
+          name: limit
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Thành công
+
+  /api/create-new-clinic:
+    post:
+      summary: Tạo mới phòng khám
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                address:
+                  type: string
+                descriptionHTML:
+                  type: string
+                descriptionMarkdown:
+                  type: string
+                image:
+                  type: string
+      responses:
+        200:
+          description: Tạo thành công
+
+  /api/get-detail-clinic-by-id:
+    get:
+      summary: Lấy chi tiết phòng khám
+      parameters:
+        - in: query
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Thành công
+
+  /api/delete-clinic:
+    delete:
+      summary: Xoá phòng khám
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+      responses:
+        200:
+          description: Xoá thành công
+
+  /api/edit-clinic:
+    put:
+      summary: Cập nhật phòng khám
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                name:
+                  type: string
+                address:
+                  type: string
+                descriptionHTML:
+                  type: string
+                descriptionMarkdown:
+                  type: string
+                image:
+                  type: string
+      responses:
+        200:
+          description: Cập nhật thành công

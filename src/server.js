@@ -4,6 +4,10 @@ import viewEngine from "./config/viewEngine";
 import initWebRoutes from "./route/web";
 import connectDB from "./config/connectDB";
 import cors from "cors";
+import swaggerUi from "swagger-ui-express";
+import yaml from "js-yaml";
+import path from "path";
+import fs from "fs";
 require('dotenv').config();
 
 let app = express();
@@ -23,6 +27,10 @@ app.use(cors({
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 
+// Swagger setup
+const swaggerPath = path.join(__dirname, "./docs/swagger.yaml");
+const swaggerDocument = yaml.load(fs.readFileSync(swaggerPath, "utf8"));
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 viewEngine(app);
 initWebRoutes(app);
 
@@ -32,5 +40,6 @@ let port = process.env.PORT || 6969; // nếu port === undefined thì port đư�
 app.listen(port, () => {
     // callback
     console.log("Backend NodeJS is running on the port: " + port)
+    console.log(`Swagger UI: http://localhost:${port}/api-docs`);
 })
 
