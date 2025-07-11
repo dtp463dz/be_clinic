@@ -64,6 +64,23 @@ let sendAttachment = (dataSend) => {
 
             // Wrap in an async IIFE so we can use await.
             (async () => {
+                // 
+                const attachments = [];
+                if (dataSend.image) {
+                    attachments.push({
+                        filename: `KetQuaDatLich ${dataSend.patientId} - ${new Date().getTime()}.PNG`,
+                        content: dataSend.image.split('base64,')[1],
+                        encoding: 'base64'
+                    });
+                }
+
+                if (dataSend.pdfBase64) {
+                    attachments.push({
+                        filename: `PhieuKham_${dataSend.patientId}_${Date.now()}.pdf`,
+                        content: dataSend.pdfBase64.split('base64,')[1],
+                        encoding: 'base64'
+                    });
+                }
                 const info = await transporter.sendMail({
                     from: '"Hệ thống Đặt lịch khám bệnh - Booking Health" <dinhphuc463tp@gmail.com>',  // sender address
                     to: dataSend.email,          // list of receivers
@@ -78,14 +95,7 @@ let sendAttachment = (dataSend) => {
                             <p style="font-size: 14px; color: #888;">Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi.</p>
                         </div>
                         `, // HTML body
-                    attachments: [
-                        {
-                            filename: `KetQuaDatLich ${dataSend.patientId} - ${new Date().getTime()}.PNG`,
-                            content: dataSend.image.split('base64,')[1],
-                            encoding: 'base64'
-                        }
-                    ],
-
+                    attachments: attachments.length > 0 ? attachments : undefined
                 });
                 console.log("Attachment Email sent:", info.messageId);
                 resolve(info);

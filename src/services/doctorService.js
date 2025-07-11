@@ -455,30 +455,6 @@ const getProfileDoctorByIdService = (inputId) => {
                     raw: true,
                     nest: true, //  giữ cấu trúc lồng nhau giữa các bảng (user-> markdown)
                 })
-
-                // // Chuyển đổi image sang base64
-                // if (data && data.image) {
-                //     let base64Image;
-                //     if (data.image.type === 'Buffer' && Array.isArray(data.image.data)) {
-                //         // Trường hợp image là object { type: "Buffer", data: [...] }
-                //         base64Image = Buffer.from(data.image.data).toString('base64');
-                //     } else if (Array.isArray(data.image) || Buffer.isBuffer(data.image)) {
-                //         // Trường hợp image là mảng byte hoặc Buffer trực tiếp
-                //         base64Image = Buffer.from(data.image).toString('base64');
-                //     }
-                //     if (base64Image) {
-                //         data.image = `data:image/jpeg;base64,${base64Image}`; // Giả sử JPEG
-                //     } else {
-                //         data.image = null; // Không thể chuyển đổi
-                //     }
-                // } else {
-                //     data.image = null; // Không có image
-                // }
-
-                // if (data && data.image) {
-                //     data.image = new Buffer(data.image, `base64`).toString('binary');
-                // }
-
                 if (!data) data = {}
                 resolve({
                     errCode: 0,
