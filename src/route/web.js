@@ -8,6 +8,7 @@ import clinicController from "../controllers/clinicController";
 import patientPDFController from "../controllers/patientPDFController";
 import searchController from "../controllers/searchController";
 import handbookController from "../controllers/handbookController";
+import symptomController from "../controllers/symptomController.js";
 
 let router = express.Router();
 
@@ -73,6 +74,13 @@ let initWebRoutes = (app) => {
     router.get('/api/get-detail-handbook-by-id', handbookController.getDetailHandBookById); // api lấy cam nang chi tiet
     router.put(`/api/edit-handbook`, handbookController.handleEditHandBook);  // edit cam nang
     router.delete(`/api/delete-handbook`, handbookController.handleDeleteHandBook); // api xóa phòng khám
+
+    // triệu chứng
+    router.post('/api/create-new-symptom', symptomController.createSymptom); // tạo triệu chứng
+    router.get('/api/get-all-symptom', symptomController.getAllSymptom);    // lấy tất cả triệu chứng
+    router.get('/api/get-symptom-by-id', symptomController.getSymptomById); // lấy chi tiêt triệu chứng
+    router.put('/api/update-symptom', symptomController.updateSymptom); // cập nhật triệu chứng
+    router.delete('/api/delete-symptom', symptomController.deleteSymptom); // xóa triệu chứng
 
     // tim kiem
     router.get('/api/search', searchController.search); // chức năng tìm kiếm
