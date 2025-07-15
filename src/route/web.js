@@ -10,6 +10,7 @@ import searchController from "../controllers/searchController";
 import handbookController from "../controllers/handbookController";
 import symptomController from "../controllers/symptomController.js";
 import drugController from "../controllers/drugController.js";
+import herbController from "../controllers/herbController.js";
 
 let router = express.Router();
 
@@ -89,6 +90,13 @@ let initWebRoutes = (app) => {
     router.get('/api/get-drug-by-id', drugController.getDrugById); // lấy chi tiết thuốc
     router.put('/api/update-drug', drugController.updateDrug); // cập nhật thuốc
     router.delete('/api/delete-drug', drugController.deleteDrug); // xóa thuốc
+
+    // dược liệu
+    router.post('/api/create-new-medicinal-herb', herbController.createHerb); // tạo dược liệu
+    router.get('/api/get-all-medicinal-herbs', herbController.getAllHerbs); // lấy tất cả dược liệu
+    router.get('/api/get-medicinal-herb-by-id', herbController.getHerbById); // lấy chi tiết dược liệu
+    router.put('/api/update-medicinal-herb', herbController.updateHerb); // cập nhật dược liệu
+    router.delete('/api/delete-medicinal-herb', herbController.deleteHerb); // xóa dược liệu
     // tim kiem
     router.get('/api/search', searchController.search); // chức năng tìm kiếm
 
