@@ -1,6 +1,6 @@
 import db from "../models/index";
 
-let createDrugService = (data) => {
+let createPartService = (data) => {
     return new Promise(async (resolve, reject) => {
         try {
             if (!data.name || !data.descriptionHTML || !data.descriptionMarkdown) {
@@ -10,7 +10,7 @@ let createDrugService = (data) => {
                 });
                 return;
             }
-            await db.Drug.create({
+            await db.BodyPart.create({
                 name: data.name,
                 descriptionHTML: data.descriptionHTML,
                 descriptionMarkdown: data.descriptionMarkdown,
@@ -18,11 +18,10 @@ let createDrugService = (data) => {
             });
             resolve({
                 errCode: 0,
-                message: "Tạo thuốc thành công!"
+                message: "Tạo bộ phận cơ thể thành công!"
             });
-
-        } catch (e) {
-            console.error("Lỗi createDrugService:", e);
+        } catch (error) {
+            console.error("Lỗi createPartService:", error);
             reject({
                 errCode: -1,
                 errMessage: "Lỗi server: " + e.message
@@ -31,14 +30,13 @@ let createDrugService = (data) => {
     })
 }
 
-let getAllDrugService = async (page = 1, limit = 10) => {
+let getAllPartsService = async (page = 1, limit = 10) => {
     return new Promise(async (resolve, reject) => {
         try {
             const pageNum = parseInt(page);
             const limitNum = parseInt(limit);
             const offset = (pageNum - 1) * limitNum;
-
-            const { count, rows } = await db.Drug.findAndCountAll({
+            const { count, rows } = await db.BodyPart.findAndCountAll({
                 offset,
                 limit: limitNum,
                 order: [['id', 'ASC']]
@@ -46,9 +44,9 @@ let getAllDrugService = async (page = 1, limit = 10) => {
             const totalPages = Math.ceil(count / limitNum);
             resolve({
                 errCode: 0,
-                message: "Lấy danh sách thuốc thành công!",
+                message: "Lấy danh sách bộ phận cơ thể thành công!",
                 data: {
-                    drugs: rows,
+                    bodyParts: rows,
                     currentPage: pageNum,
                     totalPages,
                     totalItems: count
@@ -64,7 +62,7 @@ let getAllDrugService = async (page = 1, limit = 10) => {
     })
 }
 
-let getDrugByIdService = (id) => {
+let getPartByIdService = (id) => {
     return new Promise(async (resolve, reject) => {
         try {
             if (!id) {
@@ -74,23 +72,23 @@ let getDrugByIdService = (id) => {
                 });
                 return;
             }
-            const drug = await db.Drug.findOne({
+            const bodypart = await db.BodyPart.findOne({
                 where: { id }
             });
-            if (!drug) {
+            if (!bodypart) {
                 resolve({
                     errCode: 2,
-                    errMessage: "Không tìm thấy thuốc"
+                    errMessage: "Không tìm thấy bộ phận cơ thể"
                 });
                 return;
             }
             resolve({
                 errCode: 0,
-                message: "Lấy thông tin chi tiết thuốc thành công",
-                data: drug
+                message: "Lấy thông tin chi tiết bộ phận cơ thể thành công",
+                data: bodypart
             });
         } catch (error) {
-            console.error("Lỗi getDrugByIdService:", error);
+            console.error("Lỗi getPartByIdService:", error);
             reject({
                 errCode: -1,
                 errMessage: "Lỗi server: " + error.message
@@ -99,7 +97,7 @@ let getDrugByIdService = (id) => {
     })
 }
 
-let updateDrugService = (data) => {
+let updatePartService = (data) => {
     return new Promise(async (resolve, reject) => {
         try {
             if (!data.id || !data.name || !data.descriptionHTML || !data.descriptionMarkdown) {
@@ -109,29 +107,28 @@ let updateDrugService = (data) => {
                 });
                 return;
             }
-            const drug = await db.Drug.findOne({
+            const bodypart = await db.BodyPart.findOne({
                 where: { id: data.id }
             });
-            if (!symptom) {
+            if (!bodypart) {
                 resolve({
                     errCode: 2,
-                    errMessage: "Không tìm thấy thuốc để cập nhật"
+                    errMessage: "Không tìm thấy bộ phận cơ thể để cập nhật"
                 });
                 return;
             }
-            drug.name = data.name;
-            drug.descriptionHTML = data.descriptionHTML;
-            drug.descriptionMarkdown = data.descriptionMarkdown;
-            if (data.image) {
-                drug.image = data.image;
-            }
-            await drug.save();
+            bodypart.name = data.name;
+            bodypart.descriptionHTML = data.descriptionHTML;
+            bodypart.descriptionMarkdown = data.descriptionMarkdown;
+            if (data.image) bodypart.image = data.image;
+
+            await bodypart.save();
             resolve({
                 errCode: 0,
-                message: "Cập nhật thuốc thành công!"
+                message: "Cập nhật bộ phận cơ thể thành công!"
             });
         } catch (error) {
-            console.error("Lỗi updateDrugService:", error);
+            console.error("Lỗi updatePartService:", error);
             reject({
                 errCode: -1,
                 errMessage: "Lỗi server: " + error.message
@@ -140,7 +137,7 @@ let updateDrugService = (data) => {
     })
 }
 
-let deleteDrugService = (id) => {
+let deletePartService = (id) => {
     return new Promise(async (resolve, reject) => {
         try {
             if (!id) {
@@ -150,22 +147,24 @@ let deleteDrugService = (id) => {
                 });
                 return;
             }
-
-            const drug = await db.Drug.findOne({ where: { id } });
-            if (!drug) {
+            const bodypart = await db.BodyPart.findOne({
+                where: { id }
+            });
+            if (!bodypart) {
                 resolve({
                     errCode: 2,
-                    errMessage: "Không tìm thấy thuốc để xóa"
+                    errMessage: "Không tìm thấy bộ phận cơ thể để xóa"
                 });
                 return;
             }
-            await db.Drug.destroy({ where: { id } });
+            await db.BodyPart.destroy({ where: { id } });
             resolve({
                 errCode: 0,
-                message: "Xóa thuốc thành công!"
+                message: "Xóa bộ phận cơ thể thành công!"
             });
+
         } catch (error) {
-            console.error("Lỗi deleteDrugService:", error);
+            console.error("Lỗi deletePartService:", error);
             reject({
                 errCode: -1,
                 errMessage: "Lỗi server: " + error.message
@@ -173,10 +172,12 @@ let deleteDrugService = (id) => {
         }
     })
 }
+
 module.exports = {
-    createDrugService: createDrugService,
-    getAllDrugService: getAllDrugService,
-    getDrugByIdService: getDrugByIdService,
-    updateDrugService: updateDrugService,
-    deleteDrugService: deleteDrugService,
+    createPartService: createPartService,
+    getAllPartsService: getAllPartsService,
+    getPartByIdService: getPartByIdService,
+    updatePartService: updatePartService,
+    deletePartService: deletePartService,
+
 }

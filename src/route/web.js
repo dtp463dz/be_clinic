@@ -11,6 +11,7 @@ import handbookController from "../controllers/handbookController";
 import symptomController from "../controllers/symptomController.js";
 import drugController from "../controllers/drugController.js";
 import herbController from "../controllers/herbController.js";
+import bodyPartController from "../controllers/bodyPartController.js";
 
 let router = express.Router();
 
@@ -97,6 +98,13 @@ let initWebRoutes = (app) => {
     router.get('/api/get-medicinal-herb-by-id', herbController.getHerbById); // lấy chi tiết dược liệu
     router.put('/api/update-medicinal-herb', herbController.updateHerb); // cập nhật dược liệu
     router.delete('/api/delete-medicinal-herb', herbController.deleteHerb); // xóa dược liệu
+
+    // cơ thể
+    router.post('/api/create-body-part', bodyPartController.createPart); // tạo mới
+    router.get('/api/get-all-body-parts', bodyPartController.getAllParts); // lấy all
+    router.get('/api/get-body-part-by-id', bodyPartController.getPartById); // lấy chi tiết
+    router.put('/api/update-body-part', bodyPartController.updatePart); // cập nhật
+    router.delete('/api/delete-body-part', bodyPartController.deletePart); // xóa
     // tim kiem
     router.get('/api/search', searchController.search); // chức năng tìm kiếm
 
