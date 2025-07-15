@@ -9,6 +9,7 @@ import patientPDFController from "../controllers/patientPDFController";
 import searchController from "../controllers/searchController";
 import handbookController from "../controllers/handbookController";
 import symptomController from "../controllers/symptomController.js";
+import drugController from "../controllers/drugController.js";
 
 let router = express.Router();
 
@@ -82,6 +83,12 @@ let initWebRoutes = (app) => {
     router.put('/api/update-symptom', symptomController.updateSymptom); // cập nhật triệu chứng
     router.delete('/api/delete-symptom', symptomController.deleteSymptom); // xóa triệu chứng
 
+    // thuốc
+    router.post('/api/create-new-drug', drugController.createDrug); // tạo thuốc
+    router.get('/api/get-all-drug', drugController.getAllDrug); // lấy tất cả thuốc
+    router.get('/api/get-drug-by-id', drugController.getDrugById); // lấy chi tiết thuốc
+    router.put('/api/update-drug', drugController.updateDrug); // cập nhật thuốc
+    router.delete('/api/delete-drug', drugController.deleteDrug); // xóa thuốc
     // tim kiem
     router.get('/api/search', searchController.search); // chức năng tìm kiếm
 
