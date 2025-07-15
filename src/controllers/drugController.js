@@ -1,4 +1,4 @@
-import drugService from "../services/drugService .js";
+import drugService from "../services/drugService.js";
 
 let createDrug = async (req, res) => {
     try {
@@ -15,10 +15,10 @@ let getAllDrug = async (req, res) => {
         const response = await drugService.getAllDrugService(page, limit);
         return res.status(response.errCode === 0 ? 200 : 400).json(response);
     } catch {
-        console.error("Lỗi controller getAllSymptom: ", e);
+        console.error("Lỗi controller getAllDrug: ", e);
         return res.status(500).json({
             errCode: -1,
-            errMessage: "Lỗi server khi lấy triệu chứng",
+            errMessage: "Lỗi server nội bộ",
         });
     }
 }
@@ -28,7 +28,8 @@ let getDrugById = async (req, res) => {
         const response = await drugService.getDrugByIdService(req.query.id);
         res.status(response.errCode === 0 ? 200 : 400).json(response);
     } catch {
-        res.status(500).json({
+        console.error("Lỗi controller getDrugById:", error);
+        return res.status(500).json({
             errCode: -1,
             errMessage: "Lỗi server nội bộ"
         });
@@ -40,7 +41,7 @@ let updateDrug = async (req, res) => {
         const response = await drugService.updateDrugService(req.body);
         return res.status(response.errCode === 0 ? 200 : 400).json(response);
     } catch (error) {
-        console.error("Lỗi controller updateSymptom:", error);
+        console.error("Lỗi controller updateDrug:", error);
         return res.status(500).json({
             errCode: -1,
             errMessage: "Lỗi server nội bộ"
@@ -54,7 +55,7 @@ let deleteDrug = async (req, res) => {
         const response = await drugService.deleteDrugService(id);
         return res.status(response.errCode === 0 ? 200 : 400).json(response);
     } catch (error) {
-        console.error("Lỗi controller deleteDrugService:", error);
+        console.error("Lỗi controller deleteDrug:", error);
         return res.status(500).json({
             errCode: -1,
             errMessage: "Lỗi server nội bộ"
