@@ -17,6 +17,7 @@ let searchService = async (keyword, page, limit) => {
                         doctors: [],
                         clinics: [],
                         specialties: [],
+                        handbooks: [],
                         totalItems: 0,
                         totalPages: 0,
                         currentPage: pageNum,
@@ -68,8 +69,16 @@ let searchService = async (keyword, page, limit) => {
                 raw: true
             };
 
+            // Tìm kiếm cẩm nang
+            const handbookQuery = {
+                where: {
+                    title: { [Op.like]: `%${keywordLower}%` }
+                },
+                attributes: ['id', 'author', 'title', 'descriptionHTML', 'descriptionMarkdown'],
+                raw: true
+            };
             // Thực hiện truy vấn song song
-            const [doctorsResult, clinicsResult, specialtiesResult] = await Promise.all([
+            const [doctorsResult, clinicsResult, specialtiesResult, handbookResult] = await Promise.all([
                 db.User.findAndCountAll({
                     ...doctorQuery,
                     offset,
@@ -84,10 +93,16 @@ let searchService = async (keyword, page, limit) => {
                     ...specialtyQuery,
                     offset,
                     limit: limitNum
+                }),
+                db.HandBook.findAndCountAll({
+                    ...handbookQuery,
+                    offset,
+                    limit: limitNum
                 })
+
             ]);
 
-            // Xử lý hình ảnh cho phòng khám và chuyên khoa
+            // Xử lý hình ảnh cho phòng khám và chuyên khoa, cẩm nang
             const clinics = clinicsResult.rows.map(item => {
                 if (item.image) {
                     item.image = Buffer.from(item.image, 'base64').toString('binary');
@@ -102,8 +117,15 @@ let searchService = async (keyword, page, limit) => {
                 return item;
             });
 
+            const handbooks = handbookResult.rows.map(item => {
+                if (item.image) {
+                    item.image = Buffer.from(item.image, 'base64').toString('binary');
+                }
+                return item;
+            })
+
             // Tổng số kết quả
-            const totalItems = doctorsResult.count + clinicsResult.count + specialtiesResult.count;
+            const totalItems = doctorsResult.count + clinicsResult.count + specialtiesResult.count + handbooks.count;
             const totalPages = Math.ceil(totalItems / limitNum);
 
             resolve({
@@ -113,6 +135,7 @@ let searchService = async (keyword, page, limit) => {
                     doctors: doctorsResult.rows,
                     clinics,
                     specialties,
+                    handbooks,
                     totalItems,
                     totalPages,
                     currentPage: pageNum,
