@@ -22,7 +22,7 @@ let createSymptomService = (data) => {
                 errCode: 0,
                 message: "Tạo triệu chứng thành công!"
             });
-        } catch (e) {
+        } catch (error) {
             console.error("Lỗi createSymptomService:", error);
             reject({
                 errCode: -1,

@@ -17,7 +17,7 @@ let getAllParts = async (req, res) => {
         const response = await bodyPartService.getAllPartsService(page, limit);
         return res.status(response.errCode === 0 ? 200 : 400).json(response);
     } catch (error) {
-        console.error("Lỗi controller getAllParts: ", e);
+        console.error("Lỗi controller getAllParts: ", error);
         return res.status(500).json({
             errCode: -1,
             errMessage: "Lỗi server khi lấy triệu chứng",

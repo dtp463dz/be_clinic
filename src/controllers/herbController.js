@@ -2,10 +2,11 @@ import medicinalHerbService from "../services/medicinalHerbService.js";
 
 let createHerb = async (req, res) => {
     try {
-        const response = await medicinalHerbService.createHerbService(req.body);
-        res.status(response.errCode === 0 ? 200 : 400).json(response);
-    } catch {
-        res.status(500).json({ errCode: -1, errMessage: "Lỗi server nội bộ" });
+        let response = await medicinalHerbService.createHerbService(req.body);
+        return res.status(response.errCode === 0 ? 200 : 400).json(response);
+    } catch (e) {
+        console.error("Lỗi controller createHerb: ", e);
+        return res.status(500).json({ errCode: -1, errMessage: "Lỗi server nội bộ" });
     }
 }
 
@@ -14,7 +15,7 @@ let getAllHerbs = async (req, res) => {
         const { page = 1, limit = 10 } = req.query;
         const response = await medicinalHerbService.getAllHerbsService(page, limit);
         return res.status(response.errCode === 0 ? 200 : 400).json(response);
-    } catch {
+    } catch (e) {
         console.error("Lỗi controller getAllHerbs: ", e);
         return res.status(500).json({
             errCode: -1,
@@ -28,6 +29,7 @@ let getHerbById = async (req, res) => {
         const response = await medicinalHerbService.getHerbByIdService(req.query.id);
         res.status(response.errCode === 0 ? 200 : 400).json(response);
     } catch (error) {
+        console.error("Lỗi controller getAllHerbs: ", error);
         res.status(500).json({
             errCode: -1,
             errMessage: "Lỗi server nội bộ"

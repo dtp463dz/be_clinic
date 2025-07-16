@@ -4,7 +4,8 @@ let createDrug = async (req, res) => {
     try {
         const response = await drugService.createDrugService(req.body);
         res.status(response.errCode === 0 ? 200 : 400).json(response);
-    } catch {
+    } catch (e) {
+        console.error("Lỗi controller createDrug: ", e);
         res.status(500).json({ errCode: -1, errMessage: "Lỗi server nội bộ" });
     }
 }
@@ -14,7 +15,7 @@ let getAllDrug = async (req, res) => {
         const { page = 1, limit = 10 } = req.query;
         const response = await drugService.getAllDrugService(page, limit);
         return res.status(response.errCode === 0 ? 200 : 400).json(response);
-    } catch {
+    } catch (e) {
         console.error("Lỗi controller getAllDrug: ", e);
         return res.status(500).json({
             errCode: -1,
@@ -27,7 +28,7 @@ let getDrugById = async (req, res) => {
     try {
         const response = await drugService.getDrugByIdService(req.query.id);
         res.status(response.errCode === 0 ? 200 : 400).json(response);
-    } catch {
+    } catch (error) {
         console.error("Lỗi controller getDrugById:", error);
         return res.status(500).json({
             errCode: -1,

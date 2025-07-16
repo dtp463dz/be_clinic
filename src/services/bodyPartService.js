@@ -24,7 +24,7 @@ let createPartService = (data) => {
             console.error("Lỗi createPartService:", error);
             reject({
                 errCode: -1,
-                errMessage: "Lỗi server: " + e.message
+                errMessage: "Lỗi server: " + error.message
             });
         }
     })
