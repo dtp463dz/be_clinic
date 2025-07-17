@@ -48,6 +48,20 @@ let handleRefreshToken = async (req, res) => {
     return res.status(200).json(result)
 }
 
+// Đăng xuất
+let handleLogout = async (req, res) => {
+    try {
+        const userId = req.user.userId; // lấy từ middleware authenticateToken
+        const result = await userService.handleLogoutService(userId);
+        return res.status(200).json(result);
+    } catch (error) {
+        return res.status(500).json({
+            errCode: -1,
+            message: 'Lỗi từ server'
+        });
+    }
+};
+
 // lay tat ca users
 let handleGetAllUsers = async (req, res) => {
     let id = req.query.id; // all: lấy tất cả người dùng, id: lấy chính xác người dùng
@@ -118,6 +132,7 @@ module.exports = {
     handleRegister: handleRegister,
     handleLogin: handleLogin,
     handleRefreshToken: handleRefreshToken,
+    handleLogout: handleLogout,
     handleGetAllUsers: handleGetAllUsers,
     handleCreateNewUser: handleCreateNewUser,
     handleEditUser: handleEditUser,

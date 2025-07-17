@@ -12,7 +12,7 @@ import symptomController from "../controllers/symptomController.js";
 import drugController from "../controllers/drugController.js";
 import herbController from "../controllers/herbController.js";
 import bodyPartController from "../controllers/bodyPartController.js";
-
+import authenticateToken from "../middleware/auth.js";
 let router = express.Router();
 
 // quy định hết route bên trong file web.js này 
@@ -36,6 +36,7 @@ let initWebRoutes = (app) => {
     router.post('/api/register', userController.handleRegister); // register
     router.post('/api/login', userController.handleLogin); // login
     router.post('/api/refresh-token', userController.handleRefreshToken); // refresh token
+    router.post('/api/logout', authenticateToken, userController.handleLogout); // logout
 
     router.get(`/api/get-all-users`, userController.handleGetAllUsers); // hien thi all users
     router.post(`/api/create-new-user`, userController.handleCreateNewUser); // tao new user

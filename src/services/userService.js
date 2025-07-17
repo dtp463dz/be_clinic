@@ -166,7 +166,7 @@ let checkUserEmail = (userEmail) => {
     });
 };
 
-//
+// 
 let refreshAccessToken = (refreshToken) => {
     return new Promise(async (resolve, reject) => {
         try {
@@ -204,6 +204,28 @@ let refreshAccessToken = (refreshToken) => {
         }
     })
 }
+
+// đăng xuất
+let handleLogoutService = (userId) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            await db.User.update(
+                { refreshToken: null },
+                { where: { id: userId } }
+            );
+            resolve({
+                errCode: 0,
+                errMessage: 'Đăng xuất thành công'
+            });
+        } catch (e) {
+            reject({
+                errCode: -1,
+                errMessage: 'Lỗi từ server'
+            })
+        }
+    })
+}
+
 
 // lay tat ca users
 let getAllUsers = (userId, page, limit) => {
@@ -409,6 +431,7 @@ module.exports = {
     handleRegisterUser: handleRegisterUser,
     handleUserLogin: handleUserLogin,
     refreshAccessToken: refreshAccessToken,
+    handleLogoutService: handleLogoutService,
     checkUserEmail: checkUserEmail,
     getAllUsers: getAllUsers,
     createNewUser: createNewUser,
