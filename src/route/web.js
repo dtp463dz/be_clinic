@@ -35,6 +35,8 @@ let initWebRoutes = (app) => {
     // restApi
     router.post('/api/register', userController.handleRegister); // register
     router.post('/api/login', userController.handleLogin); // login
+    router.post('/api/refresh-token', userController.handleRefreshToken); // refresh token
+
     router.get(`/api/get-all-users`, userController.handleGetAllUsers); // hien thi all users
     router.post(`/api/create-new-user`, userController.handleCreateNewUser); // tao new user
     router.put(`/api/edit-user`, userController.handleEditUser);  // edit user

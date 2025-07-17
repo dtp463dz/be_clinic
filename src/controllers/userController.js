@@ -4,13 +4,7 @@ import userService from "../services/userService";
 let handleRegister = async (req, res) => {
     let message = await userService.handleRegisterUser(req.body);
     console.log('check message: ', message);
-    // return res.status(200).json({
-    //     errCode: 0,
-    //     errMessage: 'Create new user succees! ',
-    // })
-
     return res.status(200).json(message);
-
 }
 
 // login
@@ -33,9 +27,25 @@ let handleLogin = async (req, res) => {
         return res.status(200).json({
             errCode: userData.errCode,
             message: userData.errMessage,
-            user: userData.user ? userData.user : {}
-        })
+            user: userData.user ? userData.user : {},
+            accessToken: userData.accessToken,
+            refreshToken: userData.refreshToken,
+        });
     }, delay);
+}
+
+// Làm mới access token
+let handleRefreshToken = async (req, res) => {
+    let refreshToken = req.body.refreshToken;
+    if (!refreshToken) {
+        return res.status(400).json({
+            errCode: 1,
+            message: 'Missing refresh token'
+        });
+    }
+
+    let result = await userService.refreshAccessToken(refreshToken);
+    return res.status(200).json(result)
 }
 
 // lay tat ca users
@@ -107,6 +117,7 @@ let getAllCode = async (req, res) => {
 module.exports = {
     handleRegister: handleRegister,
     handleLogin: handleLogin,
+    handleRefreshToken: handleRefreshToken,
     handleGetAllUsers: handleGetAllUsers,
     handleCreateNewUser: handleCreateNewUser,
     handleEditUser: handleEditUser,

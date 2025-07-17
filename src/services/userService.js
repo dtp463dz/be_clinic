@@ -1,7 +1,9 @@
 import { raw } from "body-parser";
 import db from "../models/index";
 import bcrypt from "bcryptjs"; // hash password
-
+import dotenv from 'dotenv';
+import jwt from 'jsonwebtoken';
+dotenv.config();
 const salt = bcrypt.genSaltSync(10);
 // hash password
 let hashUserPassword = (password) => {
@@ -25,31 +27,51 @@ let handleRegisterUser = async (data) => {
                 resolve({
                     errCode: 2,
                     errMessage: 'Missing required parameters !'
-                })
+                });
+                return;
             }
             // check email đã tồn tại chưa
             let check = await checkUserEmail(data.email);
             if (check === true) {
                 resolve({
                     errCode: 1,
-                    errMessage: 'Email already in use! '
+                    errMessage: 'Email này đã tồn tại'
                 })
+                return;
             }
 
-            let hashPasswordFromBcrypt = await hashUserPassword(data.password)
-            await db.User.create({
+            let hashPasswordFromBcrypt = await hashUserPassword(data.password);
+            let user = await db.User.create({
                 email: data.email,
                 password: hashPasswordFromBcrypt,
                 firstName: data.firstName,
                 lastName: data.lastName,
-                address: data.address,
-                phonenumber: data.phonenumber,
+                address: data.address || '',
+                phonenumber: data.phonenumber || '',
                 gender: data.gender === '1' ? true : false,
-                roleId: data.roleId,
-            })
+                roleId: data.roleId || 'R3',
+            });
+            // tạo access token và refresh token
+            const accessToken = jwt.sign(
+                { userId: user.id, email: user.email, roleId: user.roleId },
+                process.env.JWT_SECRET,
+                { expiresIn: process.env.ACCESS_TOKEN_EXPIRE }
+            );
+            const refreshToken = jwt.sign(
+                { userId: user.id },
+                process.env.REFRESH_TOKEN_SECRET,
+                { expiresIn: process.env.REFRESH_TOKEN_EXPIRE }
+            );
+            // Lưu refresh token vào cơ sở dữ liệu
+            await db.User.update(
+                { refreshToken: refreshToken },
+                { where: { id: user.id } }
+            );
             resolve({
                 errCode: 0,
-                errMessage: 'Create new user success!'
+                errMessage: 'Đăng ký người dùng thành công!',
+                accessToken,
+                refreshToken
             });
         } catch (e) {
             reject({
@@ -80,23 +102,42 @@ let handleUserLogin = (email, password) => {
                     // compare (so sanh) password
                     let check = await bcrypt.compareSync(password, user.password);
                     if (check) {
+                        // Tạo access token và refresh token
+                        const accessToken = jwt.sign(
+                            { userId: user.id, email: user.email, roleId: user.roleId },
+                            process.env.JWT_SECRET,
+                            { expiresIn: process.env.ACCESS_TOKEN_EXPIRE }
+                        );
+                        const refreshToken = jwt.sign(
+                            { userId: user.id },
+                            process.env.REFRESH_TOKEN_SECRET,
+                            { expiresIn: process.env.REFRESH_TOKEN_EXPIRE }
+                        );
+
+                        // Lưu refresh token vào cơ sở dữ liệu
+                        await db.User.update(
+                            { refreshToken: refreshToken },
+                            { where: { id: user.id } }
+                        );
                         // thanh cong
                         userData.errCode = 0;
-                        userData.errMessage = 'OK';
+                        userData.errMessage = 'Đăng nhập thành công!';
                         delete user.password; // xóa password ko cho hien thi ở api
                         userData.user = user; // ket qua 
+                        userData.accessToken = accessToken;
+                        userData.refreshToken = refreshToken;
                     } else {
                         userData.errCode = 3;
-                        userData.errMessage = 'Wrong password';
+                        userData.errMessage = 'Sai mật khẩu';
                     }
                 } else {
                     userData.errCode = 2;
-                    userData.errMessage = `User isn't not found`;
+                    userData.errMessage = `Sai tài khoản mật khẩu hoặc người dùng không tồn tại`;
                 }
             } else {
                 // return error
                 userData.errCode = 1;
-                userData.errMessage = `Your's email isn't exist in your system. Plz try other email`
+                userData.errMessage = `Email của bạn không tồn tại trong hệ thống. Vui lòng thử email khác`
             }
             resolve(userData)
 
@@ -124,6 +165,45 @@ let checkUserEmail = (userEmail) => {
         }
     });
 };
+
+//
+let refreshAccessToken = (refreshToken) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            // xác minh refesh token
+            const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+            let user = await db.User.findOne({
+                where: { id: decoded.userId, refreshToken: refreshToken },
+                attributes: ['id', 'email', 'roleId'],
+                raw: true
+            });
+            if (!user) {
+                resolve({
+                    errCode: 1,
+                    errMessage: 'Mã refresh token không hợp lệ'
+                });
+                return;
+            }
+
+            // tạo access token mới
+            const accessToken = jwt.sign(
+                { userId: user.id, email: user.email, roleId: user.roleId },
+                process.env.JWT_SECRET,
+                { expiresIn: process.env.ACCESS_TOKEN_EXPIRE }
+            )
+            resolve({
+                errCode: 0,
+                errMessage: 'Access token được tạo mới',
+                accessToken
+            });
+        } catch (e) {
+            reject({
+                errCode: -1,
+                errMessage: 'Error from server'
+            })
+        }
+    })
+}
 
 // lay tat ca users
 let getAllUsers = (userId, page, limit) => {
@@ -328,6 +408,7 @@ let getAllCodeService = (typeInput) => {
 module.exports = {
     handleRegisterUser: handleRegisterUser,
     handleUserLogin: handleUserLogin,
+    refreshAccessToken: refreshAccessToken,
     checkUserEmail: checkUserEmail,
     getAllUsers: getAllUsers,
     createNewUser: createNewUser,
