@@ -84,28 +84,28 @@ let initWebRoutes = (app) => {
     // triệu chứng
     router.post('/api/create-new-symptom', symptomController.createSymptom); // tạo triệu chứng
     router.get('/api/get-all-symptom', symptomController.getAllSymptom);    // lấy tất cả triệu chứng
-    router.get('/api/get-symptom-by-id', symptomController.getSymptomById); // lấy chi tiêt triệu chứng
+    router.get('/api/get-detail-symptom-by-id', symptomController.getSymptomById); // lấy chi tiêt triệu chứng
     router.put('/api/update-symptom', symptomController.updateSymptom); // cập nhật triệu chứng
     router.delete('/api/delete-symptom', symptomController.deleteSymptom); // xóa triệu chứng
 
     // thuốc
     router.post('/api/create-new-drug', drugController.createDrug); // tạo thuốc
     router.get('/api/get-all-drug', drugController.getAllDrug); // lấy tất cả thuốc
-    router.get('/api/get-drug-by-id', drugController.getDrugById); // lấy chi tiết thuốc
+    router.get('/api/get-detail-drug-by-id', drugController.getDrugById); // lấy chi tiết thuốc
     router.put('/api/update-drug', drugController.updateDrug); // cập nhật thuốc
     router.delete('/api/delete-drug', drugController.deleteDrug); // xóa thuốc
 
     // dược liệu
     router.post('/api/create-new-medicinal-herb', herbController.createHerb); // tạo dược liệu
     router.get('/api/get-all-medicinal-herbs', herbController.getAllHerbs); // lấy tất cả dược liệu
-    router.get('/api/get-medicinal-herb-by-id', herbController.getHerbById); // lấy chi tiết dược liệu
+    router.get('/api/get-detail-medicinal-herb-by-id', herbController.getHerbById); // lấy chi tiết dược liệu
     router.put('/api/update-medicinal-herb', herbController.updateHerb); // cập nhật dược liệu
     router.delete('/api/delete-medicinal-herb', herbController.deleteHerb); // xóa dược liệu
 
     // cơ thể
     router.post('/api/create-body-part', bodyPartController.createPart); // tạo mới
     router.get('/api/get-all-body-parts', bodyPartController.getAllParts); // lấy all
-    router.get('/api/get-body-part-by-id', bodyPartController.getPartById); // lấy chi tiết
+    router.get('/api/get-detail-body-part-by-id', bodyPartController.getPartById); // lấy chi tiết
     router.put('/api/update-body-part', bodyPartController.updatePart); // cập nhật
     router.delete('/api/delete-body-part', bodyPartController.deletePart); // xóa
     // tim kiem
