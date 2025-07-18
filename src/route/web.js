@@ -110,6 +110,7 @@ let initWebRoutes = (app) => {
     router.delete('/api/delete-body-part', bodyPartController.deletePart); // xóa
     // tim kiem
     router.get('/api/search', searchController.search); // chức năng tìm kiếm
+    router.get('/api/searchMedical', searchController.searchMedical); // chức năng tìm kiếm thuốc, dược liệu, triệu chứng, bộ phận cơ thể 
 
     // pdf
     router.get('/api/generate-patient-pdf', patientPDFController.generatePatientPDF);
