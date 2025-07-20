@@ -12,6 +12,7 @@ import symptomController from "../controllers/symptomController.js";
 import drugController from "../controllers/drugController.js";
 import herbController from "../controllers/herbController.js";
 import bodyPartController from "../controllers/bodyPartController.js";
+import dashboardController from "../controllers/dashboardController";
 import authenticateToken from "../middleware/auth.js";
 let router = express.Router();
 
@@ -115,6 +116,8 @@ let initWebRoutes = (app) => {
     // pdf
     router.get('/api/generate-patient-pdf', patientPDFController.generatePatientPDF);
 
+    // dashboard
+    router.get("/api/get-dashboard-data", dashboardController.getDashboardData);
 
 
     return app.use("/", router);
