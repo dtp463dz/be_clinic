@@ -100,6 +100,7 @@ let getPartByIdService = (id) => {
 let updatePartService = (data) => {
     return new Promise(async (resolve, reject) => {
         try {
+            // Kiểm tra các trường bắt buộc
             if (!data.id || !data.name || !data.descriptionHTML || !data.descriptionMarkdown) {
                 resolve({
                     errCode: 1,
@@ -107,22 +108,41 @@ let updatePartService = (data) => {
                 });
                 return;
             }
-            const bodypart = await db.BodyPart.findOne({
-                where: { id: data.id }
+
+            // Tìm bản ghi với findByPk, đảm bảo không dùng raw: true
+            const bodyPart = await db.BodyPart.findByPk(data.id, {
+                raw: false
             });
-            if (!bodypart) {
+            console.log('BodyPart found:', bodyPart); // Debug
+            console.log('Is Sequelize instance:', bodyPart instanceof db.BodyPart); // Debug
+
+            if (!bodyPart) {
                 resolve({
                     errCode: 2,
                     errMessage: "Không tìm thấy bộ phận cơ thể để cập nhật"
                 });
                 return;
             }
-            bodypart.name = data.name;
-            bodypart.descriptionHTML = data.descriptionHTML;
-            bodypart.descriptionMarkdown = data.descriptionMarkdown;
-            if (data.image) bodypart.image = data.image;
 
-            await bodypart.save();
+            // Kiểm tra xem bodyPart có phải là instance của Sequelize Model
+            if (!(bodyPart instanceof db.BodyPart)) {
+                console.error('BodyPart is not a Sequelize instance:', bodyPart);
+                reject({
+                    errCode: -1,
+                    errMessage: "Lỗi server: bodyPart không phải là instance của Sequelize Model"
+                });
+                return;
+            }
+
+            // Cập nhật dữ liệu
+            bodyPart.name = data.name;
+            bodyPart.descriptionHTML = data.descriptionHTML;
+            bodyPart.descriptionMarkdown = data.descriptionMarkdown;
+            if (data.image) {
+                bodyPart.image = data.image;
+            }
+
+            await bodyPart.save();
             resolve({
                 errCode: 0,
                 message: "Cập nhật bộ phận cơ thể thành công!"
@@ -134,8 +154,8 @@ let updatePartService = (data) => {
                 errMessage: "Lỗi server: " + error.message
             });
         }
-    })
-}
+    });
+};
 
 let deletePartService = (id) => {
     return new Promise(async (resolve, reject) => {

@@ -102,6 +102,7 @@ let getDrugByIdService = (id) => {
 let updateDrugService = (data) => {
     return new Promise(async (resolve, reject) => {
         try {
+            // Kiểm tra các trường bắt buộc
             if (!data.id || !data.name || !data.descriptionHTML || !data.descriptionMarkdown) {
                 resolve({
                     errCode: 1,
@@ -109,22 +110,38 @@ let updateDrugService = (data) => {
                 });
                 return;
             }
-            const drug = await db.Drug.findOne({
-                where: { id: data.id }
+
+            // Tìm bản ghi với findByPk, đảm bảo không dùng raw: true
+            const drug = await db.Drug.findByPk(data.id, {
+                raw: false
             });
-            if (!symptom) {
+
+            if (!drug) {
                 resolve({
                     errCode: 2,
                     errMessage: "Không tìm thấy thuốc để cập nhật"
                 });
                 return;
             }
+
+            // Kiểm tra xem drug có phải là instance của Sequelize Model
+            if (!(drug instanceof db.Drug)) {
+                console.error('Drug is not a Sequelize instance:', drug);
+                reject({
+                    errCode: -1,
+                    errMessage: "Lỗi server: drug không phải là instance của Sequelize Model"
+                });
+                return;
+            }
+
+            // Cập nhật dữ liệu
             drug.name = data.name;
             drug.descriptionHTML = data.descriptionHTML;
             drug.descriptionMarkdown = data.descriptionMarkdown;
             if (data.image) {
                 drug.image = data.image;
             }
+
             await drug.save();
             resolve({
                 errCode: 0,
@@ -137,8 +154,8 @@ let updateDrugService = (data) => {
                 errMessage: "Lỗi server: " + error.message
             });
         }
-    })
-}
+    });
+};
 
 let deleteDrugService = (id) => {
     return new Promise(async (resolve, reject) => {

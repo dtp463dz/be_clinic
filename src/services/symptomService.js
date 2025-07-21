@@ -109,6 +109,7 @@ let getSymptomByIdService = (id) => {
 let updateSymptomService = (data) => {
     return new Promise(async (resolve, reject) => {
         try {
+            // Kiểm tra các trường bắt buộc
             if (!data.id || !data.name || !data.descriptionHTML || !data.descriptionMarkdown) {
                 resolve({
                     errCode: 1,
@@ -116,8 +117,10 @@ let updateSymptomService = (data) => {
                 });
                 return;
             }
-            const symptom = await db.Symptom.findOne({
-                where: { id: data.id }
+
+            // Tìm bản ghi với findByPk, đảm bảo không dùng raw: true
+            const symptom = await db.Symptom.findByPk(data.id, {
+                raw: false // Rõ ràng không dùng raw
             });
 
             if (!symptom) {
@@ -128,6 +131,17 @@ let updateSymptomService = (data) => {
                 return;
             }
 
+            // Kiểm tra xem symptom có phải là instance của Sequelize Model
+            if (!(symptom instanceof db.Symptom)) {
+                console.error('Symptom is not a Sequelize instance:', symptom);
+                reject({
+                    errCode: -1,
+                    errMessage: "Lỗi server: symptom không phải là instance của Sequelize Model"
+                });
+                return;
+            }
+
+            // Cập nhật dữ liệu
             symptom.name = data.name;
             symptom.descriptionHTML = data.descriptionHTML;
             symptom.descriptionMarkdown = data.descriptionMarkdown;
@@ -149,8 +163,8 @@ let updateSymptomService = (data) => {
                 errMessage: "Lỗi server: " + error.message
             });
         }
-    })
-}
+    });
+};
 
 let deleteSymptomService = (id) => {
     return new Promise(async (resolve, reject) => {

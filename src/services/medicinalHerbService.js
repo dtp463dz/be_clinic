@@ -101,6 +101,7 @@ let getHerbByIdService = (id) => {
 let updateHerbService = (data) => {
     return new Promise(async (resolve, reject) => {
         try {
+            // Kiểm tra các trường bắt buộc
             if (!data.id || !data.name || !data.descriptionHTML || !data.descriptionMarkdown) {
                 resolve({
                     errCode: 1,
@@ -108,9 +109,12 @@ let updateHerbService = (data) => {
                 });
                 return;
             }
-            const herb = await db.MedicinalHerb.findOne({
-                where: { id: data.id }
+
+            // Tìm bản ghi với findByPk, đảm bảo không dùng raw: true
+            const herb = await db.MedicinalHerb.findByPk(data.id, {
+                raw: false
             });
+
             if (!herb) {
                 resolve({
                     errCode: 2,
@@ -118,10 +122,24 @@ let updateHerbService = (data) => {
                 });
                 return;
             }
+
+            // Kiểm tra xem herb có phải là instance của Sequelize Model
+            if (!(herb instanceof db.MedicinalHerb)) {
+                console.error('Herb is not a Sequelize instance:', herb);
+                reject({
+                    errCode: -1,
+                    errMessage: "Lỗi server: herb không phải là instance của Sequelize Model"
+                });
+                return;
+            }
+
+            // Cập nhật dữ liệu
             herb.name = data.name;
             herb.descriptionHTML = data.descriptionHTML;
             herb.descriptionMarkdown = data.descriptionMarkdown;
-            if (data.image) herb.image = data.image;
+            if (data.image) {
+                herb.image = data.image;
+            }
 
             await herb.save();
             resolve({
@@ -135,8 +153,8 @@ let updateHerbService = (data) => {
                 errMessage: "Lỗi server: " + error.message
             });
         }
-    })
-}
+    });
+};
 
 let deleteHerbService = (id) => {
     return new Promise(async (resolve, reject) => {
