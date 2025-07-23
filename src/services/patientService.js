@@ -105,8 +105,78 @@ let postVerifyBookAppointment = (data) => {
     })
 }
 
+// huy lich kham
+let cancelAppointmentService = (bookingId, userId) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (!bookingId || !userId) {
+                resolve({
+                    errCode: 1,
+                    errMessage: 'Thiếu tham số bắt buộc'
+                });
+                return;
+            }
+            let appointment = await db.Booking.findOne({
+                where: {
+                    id: bookingId,
+                    patientId: userId,
+                    statusId: { [db.Sequelize.Op.in]: ['S1', 'S2'] } // Chỉ cho phép hủy lịch hẹn đang chờ hoặc đã xác nhận
+                },
+                raw: false
+            });
+            if (!appointment) {
+                resolve({
+                    errCode: 2,
+                    errMessage: 'Không tìm thấy lịch hẹn hoặc bạn không có quyền hủy'
+                });
+                return;
+            }
+            appointment.statusId = 'S4'; // Cập nhật trạng thái thành Đã hủy
+            await appointment.save();
+
+            // Lấy thông tin người dùng và lịch hẹn để gửi email
+            const user = await db.User.findOne({
+                where: { id: userId },
+                attributes: ['email', 'firstName', 'lastName'],
+                raw: true
+            });
+            const timeType = await db.Allcode.findOne({
+                where: { keyMap: appointment.timeType },
+                attributes: ['valueVi'],
+                raw: true
+            });
+            const doctor = await db.User.findOne({
+                where: { id: appointment.doctorId },
+                attributes: ['firstName', 'lastName'],
+                raw: true
+            });
+            // Định dạng ngày từ timestamp sang DD/MM/YYYY
+            // Thay đoạn định dạng ngày trong cancelAppointmentService
+            const dateObj = new Date(Number(appointment.date));
+            const formattedDate = `${dateObj.getDate().toString().padStart(2, '0')}/${(dateObj.getMonth() + 1).toString().padStart(2, '0')}/${dateObj.getFullYear()}`;
+
+            await emailService.sendCancelAppointmentEmail({
+                reciverEmail: user.email,
+                patientName: `${user.firstName} ${user.lastName}`,
+                time: timeType ? timeType.valueVi : 'N/A',
+                date: formattedDate,
+                doctorName: doctor ? `${doctor.firstName} ${doctor.lastName}` : 'N/A',
+                redirectLink: `${process.env.URL_REACT}/book-appointment`
+            });
+            resolve({
+                errCode: 0,
+                errMessage: 'Hủy lịch hẹn thành công'
+            });
+        } catch (e) {
+            console.log('Lỗi khi hủy lịch hẹn cancelAppointmentService: ', e);
+            reject(e);
+        }
+    })
+}
+
 
 module.exports = {
     postBookAppointmentService: postBookAppointmentService,
     postVerifyBookAppointment: postVerifyBookAppointment,
+    cancelAppointmentService: cancelAppointmentService,
 }
