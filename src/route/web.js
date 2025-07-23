@@ -58,6 +58,7 @@ let initWebRoutes = (app) => {
 
     router.get('/api/get-list-patient-for-doctor', doctorController.getListPatientForDoctor);   // lấy danh sách bệnh nhân từ bác sĩ
     router.post('/api/send-confirm', doctorController.sendConfirm);   // lưu thông tin modal hóa đơn khám bệnh 
+    router.get('/api/get-doctor-notifications', authenticateToken, doctorController.getDoctorNotifications); // gửi thông báo cho bác sĩ 
 
 
     router.post('/api/patient-book-appointment', patientController.postBookAppointment);   // lấy thông tin profile của bác sĩ thông qua id

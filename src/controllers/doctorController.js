@@ -145,6 +145,27 @@ let sendConfirm = async (req, res) => {
     }
 }
 
+// lay thong bao cho bác sĩ
+let getDoctorNotifications = async (req, res) => {
+    try {
+        const doctorId = req.user.userId;
+        if (!doctorId) {
+            return res.status(400).json({
+                errCode: -1,
+                message: 'Thiếu doctorId'
+            });
+        }
+        let response = await doctorService.getDoctorNotificaitons(doctorId);
+        return res.status(200).json(response);
+    } catch (e) {
+        console.log('Error in getDoctorNotifications: ', e);
+        return res.status(500).json({
+            errCode: -1,
+            message: 'Error from server...'
+        })
+    }
+}
+
 module.exports = {
     getTopDoctorHome: getTopDoctorHome,
     getAllDoctor: getAllDoctor,
@@ -156,4 +177,5 @@ module.exports = {
     getProfileDoctorById: getProfileDoctorById,
     getListPatientForDoctor: getListPatientForDoctor,
     sendConfirm: sendConfirm,
+    getDoctorNotifications: getDoctorNotifications,
 }

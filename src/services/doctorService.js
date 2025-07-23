@@ -564,6 +564,71 @@ let sendConfirmService = (data) => {
         }
     })
 }
+
+// lấy danh sách thông báo chưa đọc và số lượng cho badge
+let getDoctorNotificaitons = (doctorId) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (!doctorId) {
+                resolve({
+                    errCode: 1,
+                    errMessage: 'Missing required parameter doctorId'
+                });
+                return;
+            }
+            let notifications = await db.Notification.findAll({
+                where: {
+                    doctorId: doctorId,
+                    status: 'unread'
+                },
+                attributes: ['id', 'message'],
+                include: [
+                    {
+                        model: db.User,
+                        as: 'patientData',
+                        attributes: ['firstName', 'lastName']
+                    },
+                    {
+                        model: db.Booking,
+                        as: 'bookingData',
+                        attributes: ['timeType', 'date'],
+                        include: [
+                            {
+                                model: db.Allcode,
+                                as: 'timeTypeDataPatient',
+                                attributes: ['valueVi'],
+                            }
+                        ]
+                    }
+                ],
+                raw: true,
+                nest: true
+            });
+            notifications = notifications.map(notification => ({
+                ...notification,
+                bookingData: {
+                    ...notification.bookingData,
+                    date: notification.bookingData.date
+                        ? `${new Date(Number(notification.bookingData.date)).getDate().toString().padStart(2, '0')}/${(new Date(Number(notification.bookingData.date)).getMonth() + 1).toString().padStart(2, '0')}/${new Date(Number(notification.bookingData.date)).getFullYear()}`
+                        : 'N/A'
+                }
+            }));
+
+            resolve({
+                errCode: 0,
+                data: notifications,
+                unreadCount: notifications.length
+            });
+
+        } catch (e) {
+            console.log('Error in getDoctorNotifications:', e);
+            reject({
+                errCode: -1,
+                message: 'Error fetching notifications'
+            });
+        }
+    })
+}
 module.exports = {
     getTopDoctorHomeService: getTopDoctorHomeService,
     getAllDoctorService: getAllDoctorService,
@@ -575,5 +640,6 @@ module.exports = {
     getProfileDoctorByIdService: getProfileDoctorByIdService,
     getListPatientForDoctorService: getListPatientForDoctorService,
     sendConfirmService: sendConfirmService,
+    getDoctorNotificaitons: getDoctorNotificaitons,
 
 }
