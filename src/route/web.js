@@ -43,6 +43,7 @@ let initWebRoutes = (app) => {
     router.post(`/api/create-new-user`, userController.handleCreateNewUser); // tao new user
     router.put(`/api/edit-user`, userController.handleEditUser);  // edit user
     router.delete(`/api/delete-user`, userController.handleDeleteUser); // delete user
+    router.get('/api/get-user-profile', authenticateToken, userController.getUserProfile); // xem hồ sơ bệnh nhân
 
     router.get('/api/allcode', userController.getAllCode);
 

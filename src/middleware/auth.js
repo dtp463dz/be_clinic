@@ -9,7 +9,7 @@ const authenticateToken = (req, res, next) => {
     if (!token) {
         return res.status(401).json({
             errCode: 1,
-            message: 'Access token is required'
+            message: 'Không tìm thấy token xác thực'
         });
     }
 
@@ -17,13 +17,21 @@ const authenticateToken = (req, res, next) => {
         if (err) {
             return res.status(403).json({
                 errCode: 2,
-                message: `Invalid or expired access`
+                message: `Token không hợp lệ hoặc đã hết hạn`
             });
+        }
+        // Kiểm tra roleId
+        if (!user || !user.roleId || user.roleId !== 'R3') {
+            return res.status(403).json({
+                errCode: 3,
+                errMessage: 'Chỉ bệnh nhận (R3) mới có quyền truy cập'
+            })
         }
 
         req.user = user;
         next();
     });
+
 };
 
 export default authenticateToken;

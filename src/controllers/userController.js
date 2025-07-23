@@ -128,6 +128,21 @@ let getAllCode = async (req, res) => {
     }
 }
 
+// xem hồ sơ người dùng 
+let getUserProfile = async (req, res) => {
+    try {
+        const userId = req.user.userId; // lấy userId từ JWT token
+        let response = await userService.getUserProfileService(userId);
+        return res.status(200).json(response);
+    } catch (e) {
+        console.log(e);
+        return res.status(500).json({
+            errCode: -1,
+            errMessage: 'Lỗi từ server...'
+        })
+    }
+}
+
 module.exports = {
     handleRegister: handleRegister,
     handleLogin: handleLogin,
@@ -138,4 +153,5 @@ module.exports = {
     handleEditUser: handleEditUser,
     handleDeleteUser: handleDeleteUser,
     getAllCode: getAllCode,
+    getUserProfile: getUserProfile,
 }

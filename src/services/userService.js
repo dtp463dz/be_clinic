@@ -427,6 +427,62 @@ let getAllCodeService = (typeInput) => {
     })
 }
 
+let getUserProfileService = (userId) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (!userId) {
+                resolve({
+                    errCode: 1,
+                    errMessage: 'Thiếu tham số bắt buộc: userId'
+                });
+                return;
+            }
+            const user = await db.User.findOne({
+                where: { id: userId, roleId: 'R3' },
+                attributes: {
+                    exclude: ['password', 'refreshToken', 'image'] // Loại bỏ các trường nhạy cảm
+                },
+                include: [
+                    { model: db.Allcode, as: 'genderData', attributes: ['valueEn', 'valueVi'] },
+                    { model: db.Allcode, as: 'roleData', attributes: ['valueEn', 'valueVi'] },
+                    {
+                        model: db.Booking,
+                        as: 'patientData',
+                        attributes: ['id', 'statusId', 'doctorId', 'date', 'timeType'],
+                        include: [
+                            { model: db.Allcode, as: 'timeTypeDataPatient', attributes: ['valueEn', 'valueVi'] },
+                            {
+                                model: db.User,
+                                as: 'doctorData', // Sửa alias để rõ ràng hơn
+                                attributes: ['firstName', 'lastName'],
+                                include: [
+                                    { model: db.Doctor_Infor, attributes: ['nameClinic', 'addressClinic'] }
+                                ]
+                            }
+                        ]
+                    }
+                ],
+                raw: true,
+                nest: true
+            });
+            if (!user) {
+                resolve({
+                    errCode: 2,
+                    errMessage: 'Không tìm thấy người dùng hoặc không phải bệnh nhân'
+                });
+                return;
+            }
+            resolve({
+                errCode: 0,
+                errMessage: 'Lấy thông tin hồ sơ thành công',
+                data: user
+            });
+        } catch (e) {
+            reject(e);
+        }
+    })
+}
+
 module.exports = {
     handleRegisterUser: handleRegisterUser,
     handleUserLogin: handleUserLogin,
@@ -438,4 +494,5 @@ module.exports = {
     deleteUser: deleteUser,
     updateUserData: updateUserData,
     getAllCodeService: getAllCodeService,
+    getUserProfileService: getUserProfileService,
 }
