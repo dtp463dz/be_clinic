@@ -14,6 +14,7 @@ module.exports = (sequelize, DataTypes) => {
             Booking.belongsTo(models.User, { foreignKey: 'patientId', targetKey: 'id', as: 'patientData' })
             Booking.belongsTo(models.User, { foreignKey: 'doctorId', targetKey: 'id', as: 'doctorData' });
             Booking.belongsTo(models.Allcode, { foreignKey: 'timeType', targetKey: 'keyMap', as: 'timeTypeDataPatient' })
+            Booking.hasMany(models.Notification, { foreignKey: 'bookingId', as: 'notifications' });
         }
     }
     Booking.init({
