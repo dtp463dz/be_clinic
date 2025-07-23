@@ -20,8 +20,14 @@ const authenticateToken = (req, res, next) => {
                 message: `Token không hợp lệ hoặc đã hết hạn`
             });
         }
+        if (!user || !user.roleId) {
+            return res.status(403).json({
+                errCode: 3,
+                message: 'Thông tin người dùng không hợp lệ'
+            });
+        }
         // Kiểm tra roleId
-        if (!user || !user.roleId || user.roleId !== 'R3') {
+        if (user.roleId !== 'R2' && user.roleId !== 'R3') {
             return res.status(403).json({
                 errCode: 3,
                 errMessage: 'Chỉ bệnh nhận (R3) mới có quyền truy cập'

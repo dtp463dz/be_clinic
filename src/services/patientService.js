@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import emailService from "./emailService";
 import { v4 as uuidv4 } from 'uuid';
 
+dotenv.config();
 let buildUrlEmail = (doctorId, token) => {
     let result = `${process.env.URL_REACT}/verify-booking?token=${token}&doctorId=${doctorId}`;
     return result;
@@ -38,21 +39,65 @@ let postBookAppointmentService = (data) => {
                     },
                 });
                 console.log('check user db:', user[0])
-
-                // create a booking record
-                if (user && user[0]) {
-                    await db.Booking.findOrCreate({
-                        where: { patientId: user[0].id },
-                        defaults: {
-                            statusId: 'S1',
-                            doctorId: data.doctorId,
-                            patientId: user[0].id,
-                            date: data.date,
-                            timeType: data.timeType,
-                            token: token
-                        }
-                    })
+                if (!user || !user[0]) {
+                    resolve({
+                        errCode: 2,
+                        errMessage: 'Failed to create or find patient'
+                    });
+                    return;
                 }
+                //tạo lịch hẹn
+                let booking = await db.Booking.findOrCreate({
+                    where: { patientId: user[0].id, date: data.date, timeType: data.timeType },
+                    defaults: {
+                        statusId: 'S1',
+                        doctorId: data.doctorId,
+                        patientId: user[0].id,
+                        date: data.date,
+                        timeType: data.timeType,
+                        token: token
+                    }
+                })
+
+
+                if (!booking || !booking[0]) {
+                    resolve({
+                        errCode: 3,
+                        errMessage: 'Failed to create or find booking'
+                    });
+                    return;
+                }
+                // lấy thông tin bác sĩ để gửi email thông báo
+                const doctor = await db.User.findOne({
+                    where: {
+                        id: data.doctorId, roleId: 'R2'
+                    },
+                    attributes: ['email', 'firstName', 'lastName'],
+                    raw: true
+                });
+
+
+
+                // Gửi email thông báo cho bác sĩ
+                if (doctor) {
+                    await emailService.sendDoctorNotificationEmail({
+                        reciverEmail: doctor.email,
+                        doctorName: `${doctor.firstName} ${doctor.lastName}`,
+                        patientName: data.fullName,
+                        time: data.timeString,
+                        date: data.date,
+                        redirectLink: `${process.env.URL_REACT}/doctor/schedule`,
+                        subject: '🔔 Lịch hẹn mới từ bệnh nhân - Booking Health'
+                    });
+                }
+                // luu thong bao vao bang notifications
+                await db.Notification.create({
+                    doctorId: data.doctorId,
+                    patientId: user[0].id,
+                    bookingId: booking[0].id,
+                    message: `Bệnh nhân ${data.fullName} đã đặt lịch khám vào ${data.timeString}, ngày ${data.date}`,
+                    status: 'unread'
+                });
 
                 resolve({
                     errCode: 0,
@@ -60,6 +105,7 @@ let postBookAppointmentService = (data) => {
                 })
             }
         } catch (e) {
+            console.log('Error in postBookAppointmentService:', e);
             reject(e);
         }
     })

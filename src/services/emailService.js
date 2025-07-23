@@ -160,8 +160,63 @@ let sendCancelAppointmentEmail = (dataSend) => {
         }
     })
 }
+
+// gui thông báo cho doctor
+let sendDoctorNotificationEmail = (dataSend) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const transporter = nodemailer.createTransport({
+                host: "smtp.gmail.com",
+                port: 587,
+                secure: false,
+                auth: {
+                    user: process.env.EMAIL_APP,
+                    pass: process.env.EMAIL_APP_PASSWORD,
+                },
+            });
+            const info = await transporter.sendMail({
+                from: '"Hệ thống Đặt lịch khám bệnh - Booking Health" <dinhphuc463tp@gmail.com>',
+                to: dataSend.reciverEmail,
+                subject: dataSend.subject || "🔔 Thông báo lịch hẹn mới - Booking Health",
+                html: `
+                    <div style="font-family: Arial, sans-serif; font-size: 16px; color: #333;">
+                        <h2 style="color: #2a9d8f;">Xin chào Bác sĩ ${dataSend.doctorName},</h2>
+                        <p>Bạn nhận được email này vì có một bệnh nhân vừa đặt lịch khám trên hệ thống <strong>Booking Health</strong>.</p>
+                        <h3>📋 Thông tin lịch hẹn:</h3>
+                        <ul>
+                            <li><strong>👤 Bệnh nhân:</strong> ${dataSend.patientName || 'N/A'}</li>
+                            <li><strong>⏰ Thời gian:</strong> ${dataSend.time || 'N/A'}</li>
+                        </ul>
+                        <p>Vui lòng kiểm tra lịch hẹn của bạn để xác nhận hoặc quản lý:</p>
+                        <div style="margin: 20px 0;">
+                            <a href="${dataSend.redirectLink}" 
+                               style="padding: 10px 20px; background-color: #2a9d8f; color: white; text-decoration: none; border-radius: 5px;">
+                                📅 Xem lịch hẹn
+                            </a>
+                        </div>
+                        <p>Nếu bạn không mong muốn nhận thông báo này, vui lòng liên hệ quản trị viên.</p>
+                        <hr/>
+                        <p style="font-size: 14px; color: #888;">Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi.</p>
+                    </div>
+                `
+            });
+            console.log("Doctor Notification Email sent:", info.messageId);
+            resolve({
+                errCode: 0,
+                errMessage: 'Email sent successfully'
+            });
+        } catch (e) {
+            console.log('Error sending doctor notification email:', e);
+            reject({
+                errCode: -1,
+                errMessage: 'Error sending email'
+            });
+        }
+    })
+}
 module.exports = {
     sendSimpleEmail: sendSimpleEmail,
     sendAttachment: sendAttachment,
     sendCancelAppointmentEmail: sendCancelAppointmentEmail,
+    sendDoctorNotificationEmail: sendDoctorNotificationEmail,
 }
