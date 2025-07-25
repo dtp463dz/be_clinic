@@ -32,6 +32,11 @@ let getDashboardDataService = (startDate, endDate) => {
                     {
                         model: db.User,
                         as: "patientData",
+                        attributes: ['firstName', 'lastName'],
+                    },
+                    {
+                        model: db.User,
+                        as: "doctorData",
                         attributes: [],
                         include: [
                             {
@@ -56,7 +61,7 @@ let getDashboardDataService = (startDate, endDate) => {
 
             const totalRevenue = revenueData.reduce((sum, booking) => {
                 const price = parseFloat(
-                    booking.patientData.Doctor_Infor?.priceTypeData?.valueVi || 0
+                    booking.doctorData.Doctor_Infor?.priceTypeData?.valueVi || 0
                 );
                 return sum + (isNaN(price) ? 0 : price);
             }, 0);
@@ -113,7 +118,7 @@ let getDashboardDataService = (startDate, endDate) => {
                     include: [
                         {
                             model: db.User,
-                            as: "patientData",
+                            as: "doctorData",
                             attributes: [],
                             include: [
                                 {
@@ -137,7 +142,7 @@ let getDashboardDataService = (startDate, endDate) => {
                 }).then((bookings) =>
                     bookings.reduce((sum, booking) => {
                         const price = parseFloat(
-                            booking.patientData.Doctor_Infor?.priceTypeData?.valueVi || 0
+                            booking.doctorData.Doctor_Infor?.priceTypeData?.valueVi || 0
                         );
                         return sum + (isNaN(price) ? 0 : price);
                     }, 0)
@@ -202,6 +207,7 @@ let getDashboardDataService = (startDate, endDate) => {
                         totalAppointments,
                         totalCancelAppointments,
                         totalRevenue,
+                        revenueData,
                     },
                     chartData: chartData.reverse(),
                     recentActivities: formattedActivities,
