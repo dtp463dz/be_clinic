@@ -62,7 +62,7 @@ let initWebRoutes = (app) => {
     router.post('/api/cancel-confirm', authenticateToken, doctorController.cancelConfirm);   // hủy lịch khám ở phía bác sĩ
 
 
-    router.post('/api/patient-book-appointment', patientController.postBookAppointment);   // lấy thông tin profile của bác sĩ thông qua id
+    router.post('/api/patient-book-appointment', patientController.postBookAppointment);   // bệnh nhân đặt lịch khám
     router.post('/api/verify-book-appointment', patientController.postVerifyBookAppointment);   // verify, xac nhan dat lich thanh cong
     router.post('/api/cancel-appointment', authenticateToken, patientController.cancelAppointment); // hủy lịch khám ở phía bệnh nhân
 
