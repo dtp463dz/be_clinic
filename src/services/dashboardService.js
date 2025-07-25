@@ -61,6 +61,17 @@ let getDashboardDataService = (startDate, endDate) => {
                 return sum + (isNaN(price) ? 0 : price);
             }, 0);
 
+            // tổng lịch hẹn bị hủy
+            const totalCancelAppointments = await db.Booking.count({
+                where: {
+                    statusId: "S4", // lịch hẹn đã hủy
+                    ...(startDate && endDate
+                        ? { date: { [Op.between]: [startDate, endDate] } }
+                        : {}
+                    ),
+                }
+            })
+
             // 2. Dữ liệu biểu đồ (theo tháng)
             const chartData = [];
             const months = [
@@ -189,6 +200,7 @@ let getDashboardDataService = (startDate, endDate) => {
                         totalPatients,
                         totalClinics,
                         totalAppointments,
+                        totalCancelAppointments,
                         totalRevenue,
                     },
                     chartData: chartData.reverse(),
