@@ -565,6 +565,82 @@ let sendConfirmService = (data) => {
     })
 }
 
+let cancelConfirmService = (bookingId, doctorId) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (!bookingId || !doctorId) {
+                resolve({
+                    errCode: 1,
+                    errMessage: 'Thiếu tham số bắt buộc bookingId hoặc doctorId'
+                });
+                return;
+            } else {
+                // tìm lịch hẹn s2
+                let appointment = await db.Booking.findOne({
+                    where: {
+                        id: bookingId,
+                        doctorId: doctorId,
+                        statusId: 'S2'
+                    },
+                    raw: false,
+
+                })
+                if (!appointment) {
+                    resolve({
+                        errCode: 2,
+                        errMessage: 'Không tìm thấy lịch hẹn hoặc bạn không có quyền hủy',
+                    });
+                    return;
+
+                }
+                // cập nhật trạng thái thành s4 đã hủy
+                appointment.statusId = 'S4';
+                await appointment.save();
+                // Lấy thông tin bệnh nhân và lịch hẹn để gửi email
+                const patient = await db.User.findOne({
+                    where: { id: appointment.patientId },
+                    attributes: ['email', 'firstName', 'lastName'],
+                    raw: true
+                });
+
+                const timeType = await db.Allcode.findOne({
+                    where: { keyMap: appointment.timeType },
+                    attributes: ['valueVi'],
+                    raw: true
+                });
+
+                const doctor = await db.User.findOne({
+                    where: { id: appointment.doctorId },
+                    attributes: ['firstName', 'lastName'],
+                    raw: true
+                });
+                // Định dạng ngày
+                const dateObj = new Date(Number(appointment.date));
+                const formattedDate = `${dateObj.getDate().toString().padStart(2, '0')}/${(dateObj.getMonth() + 1).toString().padStart(2, '0')}/${dateObj.getFullYear()}`;
+
+                // Gửi email thông báo hủy lịch
+                await emailService.sendCancelAppointmentEmailBS({
+                    reciverEmail: patient.email,
+                    patientName: `${patient.firstName} ${patient.lastName}`,
+                    time: timeType ? timeType.valueVi : 'N/A',
+                    date: formattedDate,
+                    doctorName: doctor ? `${doctor.firstName} ${doctor.lastName}` : 'N/A',
+                    redirectLink: `${process.env.URL_REACT}/book-appointment`
+                });
+
+                resolve({
+                    errCode: 0,
+                    errMessage: 'Hủy lịch hẹn khám thành công',
+                })
+            }
+
+        } catch (e) {
+            console.log('Lỗi khi hủy lịch hẹn cancelConfirmService: ', e);
+            reject(e)
+        }
+    })
+}
+
 // lấy danh sách thông báo chưa đọc và số lượng cho badge
 let getDoctorNotificaitons = (doctorId) => {
     return new Promise(async (resolve, reject) => {
@@ -640,6 +716,7 @@ module.exports = {
     getProfileDoctorByIdService: getProfileDoctorByIdService,
     getListPatientForDoctorService: getListPatientForDoctorService,
     sendConfirmService: sendConfirmService,
+    cancelConfirmService: cancelConfirmService,
     getDoctorNotificaitons: getDoctorNotificaitons,
 
 }

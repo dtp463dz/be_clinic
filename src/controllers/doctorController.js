@@ -145,6 +145,28 @@ let sendConfirm = async (req, res) => {
     }
 }
 
+// bác sĩ hủy lịch khám
+let cancelConfirm = async (req, res) => {
+    try {
+        const { bookingId } = req.body;
+        const doctorId = req.user.userId; // Lấy doctorId từ JWT token
+        if (!bookingId) {
+            return res.status(400).json({
+                errCode: 1,
+                message: 'Thiếu tham số bắt buộc: bookingId'
+            });
+        }
+        let response = await doctorService.cancelConfirmService(bookingId, doctorId);
+        return res.status(200).json(response)
+    } catch (e) {
+        console.log(e)
+        return res.status(200).json({
+            errCode: -1,
+            message: 'Lỗi từ server !!!'
+        })
+    }
+}
+
 // lay thong bao cho bác sĩ
 let getDoctorNotifications = async (req, res) => {
     try {
@@ -177,5 +199,6 @@ module.exports = {
     getProfileDoctorById: getProfileDoctorById,
     getListPatientForDoctor: getListPatientForDoctor,
     sendConfirm: sendConfirm,
+    cancelConfirm: cancelConfirm,
     getDoctorNotifications: getDoctorNotifications,
 }

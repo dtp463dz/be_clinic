@@ -59,11 +59,12 @@ let initWebRoutes = (app) => {
     router.get('/api/get-list-patient-for-doctor', doctorController.getListPatientForDoctor);   // lấy danh sách bệnh nhân từ bác sĩ
     router.post('/api/send-confirm', doctorController.sendConfirm);   // lưu thông tin modal hóa đơn khám bệnh 
     router.get('/api/get-doctor-notifications', authenticateToken, doctorController.getDoctorNotifications); // gửi thông báo cho bác sĩ 
+    router.post('/api/cancel-confirm', authenticateToken, doctorController.cancelConfirm);   // hủy lịch khám ở phía bác sĩ
 
 
     router.post('/api/patient-book-appointment', patientController.postBookAppointment);   // lấy thông tin profile của bác sĩ thông qua id
     router.post('/api/verify-book-appointment', patientController.postVerifyBookAppointment);   // verify, xac nhan dat lich thanh cong
-    router.post('/api/cancel-appointment', authenticateToken, patientController.cancelAppointment); // hủy lịch khám
+    router.post('/api/cancel-appointment', authenticateToken, patientController.cancelAppointment); // hủy lịch khám ở phía bệnh nhân
 
     router.post('/api/create-new-specialty', specialtyController.createSpecialty);   // tạo chuyên khoa mới
     router.get('/api/get-all-specialty', specialtyController.getAllSpecialty); // api lấy chuyên khoa

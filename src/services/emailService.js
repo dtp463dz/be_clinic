@@ -106,6 +106,7 @@ let sendAttachment = (dataSend) => {
     })
 }
 
+// bệnh nhân hủy 
 let sendCancelAppointmentEmail = (dataSend) => {
     return new Promise(async (resolve, reject) => {
         try {
@@ -133,6 +134,62 @@ let sendCancelAppointmentEmail = (dataSend) => {
                             <li><strong>👨‍⚕️ Bác sĩ:</strong> ${dataSend.doctorName || 'N/A'}</li>
                         </ul>
                         <p>Nếu bạn muốn đặt lại lịch khám, vui lòng nhấn vào nút dưới đây:</p>
+                        <div style="margin: 20px 0;">
+                            <a href="${dataSend.redirectLink}" 
+                               style="padding: 10px 20px; background-color: #2a9d8f; color: white; text-decoration: none; border-radius: 5px;">
+                                📅 Đặt lại lịch khám
+                            </a>
+                        </div>
+                        <p>Nếu bạn không thực hiện thao tác này, vui lòng bỏ qua email này.</p>
+                        <hr/>
+                        <p style="font-size: 14px; color: #888;">Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi.</p>
+                    </div>
+                `,
+            });
+            console.log("Cancel Appointment Email sent:", info.messageId);
+            resolve({
+                errCode: 0,
+                errMessage: 'Email sent successfully'
+            });
+
+        } catch (e) {
+            console.log('Error sending cancel appointment email:', e);
+            reject({
+                errCode: -1,
+                errMessage: 'Error sending email'
+            })
+        }
+    })
+}
+
+//bác sĩ hủy
+let sendCancelAppointmentEmailBS = (dataSend) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const transporter = nodemailer.createTransport({
+                host: "smtp.gmail.com",
+                port: 587,
+                secure: false,
+                auth: {
+                    user: process.env.EMAIL_APP,
+                    pass: process.env.EMAIL_APP_PASSWORD,
+                },
+            });
+            const info = await transporter.sendMail({
+                from: '"Hệ thống Đặt lịch khám bệnh - Booking Health" <dinhphuc463tp@gmail.com>',
+                to: dataSend.reciverEmail,
+                subject: "🔔 Hủy lịch khám bệnh - Booking Health",
+                html: `
+                    <div style="font-family: Arial, sans-serif; font-size: 16px; color: #333;">
+                        <h2 style="color: #2a9d8f;">Xin chào ${dataSend.patientName},</h2>
+                        <p>Bạn nhận được email này vì đã bị hủy lịch khám bệnh trên hệ thống <strong>Booking Health</strong>.</p>
+                        <h3>📋 Thông tin lịch hủy:</h3>
+                        <ul>
+                            <li><strong>⏰ Thời gian:</strong> ${dataSend.time || 'N/A'}</li>
+                            <li><strong>📅 Ngày:</strong> ${dataSend.date || 'N/A'}</li>
+                            <li><strong>👨‍⚕️ Bác sĩ:</strong> ${dataSend.doctorName || 'N/A'}</li>
+                        </ul>
+                        <p>Nếu bạn muốn phản hồi lại lịch khám, vui lòng nhấn vào nút dưới đây:</p>
                         <div style="margin: 20px 0;">
                             <a href="${dataSend.redirectLink}" 
                                style="padding: 10px 20px; background-color: #2a9d8f; color: white; text-decoration: none; border-radius: 5px;">
@@ -219,4 +276,5 @@ module.exports = {
     sendAttachment: sendAttachment,
     sendCancelAppointmentEmail: sendCancelAppointmentEmail,
     sendDoctorNotificationEmail: sendDoctorNotificationEmail,
+    sendCancelAppointmentEmailBS: sendCancelAppointmentEmailBS,
 }
