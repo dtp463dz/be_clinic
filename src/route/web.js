@@ -13,7 +13,10 @@ import drugController from "../controllers/drugController.js";
 import herbController from "../controllers/herbController.js";
 import bodyPartController from "../controllers/bodyPartController.js";
 import dashboardController from "../controllers/dashboardController";
+import chatController from "../controllers/chatController.js";
 import authenticateToken from "../middleware/auth.js";
+import isAdmin from "../middleware/isAdmin.js";
+
 let router = express.Router();
 
 // quy định hết route bên trong file web.js này 
@@ -123,6 +126,10 @@ let initWebRoutes = (app) => {
     // dashboard
     router.get("/api/get-dashboard-data", dashboardController.getDashboardData);
 
+    // chat message
+    router.get('/api/messages', authenticateToken, chatController.getMessage); // lấy tin nhắn giữa user và bác sĩ
+    router.post('/api/messages', authenticateToken, chatController.postMessage);  // gửi tin nhắn từ user và bác sĩ
+    router.get('/api/online-users', authenticateToken, isAdmin, chatController.getOnlineUsers); // hiển thị người đang online
 
     return app.use("/", router);
 }

@@ -26,14 +26,13 @@ const authenticateToken = (req, res, next) => {
                 message: 'Thông tin người dùng không hợp lệ'
             });
         }
-        // Kiểm tra roleId
-        if (user.roleId !== 'R2' && user.roleId !== 'R3') {
-            return res.status(403).json({
-                errCode: 3,
-                errMessage: 'Chỉ bệnh nhận (R3) mới có quyền truy cập'
-            })
-        }
-
+        // // Kiểm tra roleId
+        // if (user.roleId !== 'R2' && user.roleId !== 'R3') {
+        //     return res.status(403).json({
+        //         errCode: 3,
+        //         errMessage: 'Chỉ bệnh nhận (R3) mới có quyền truy cập'
+        //     })
+        // }
         req.user = user;
         next();
     });
