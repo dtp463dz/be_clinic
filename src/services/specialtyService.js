@@ -9,21 +9,30 @@ let createSpecialtyService = (data) => {
                 resolve({
                     errCode: 1,
                     errMessage: 'Missing parameter'
-                })
-            } else {
-                await db.Specialty.create({
-                    name: data.name,
-                    image: data.image,
-                    descriptionHTML: data.descriptionHTML,
-                    descriptionMarkdown: data.descriptionMarkdown,
-                })
-                resolve({
-                    errCode: 0,
-                    errMessage: 'Tạo chuyên khoa thành công'
-                })
+                });
+                return;
             }
-
-
+            // Kiểm tra tên chuyên khoa đã tồn tại
+            let existingSpecialty = await db.Specialty.findOne({
+                where: { name: data.name }
+            });
+            if (existingSpecialty) {
+                resolve({
+                    errCode: 2,
+                    errMessage: 'Chuyên khoa này đã tồn tại'
+                });
+                return;
+            }
+            await db.Specialty.create({
+                name: data.name,
+                image: data.image,
+                descriptionHTML: data.descriptionHTML,
+                descriptionMarkdown: data.descriptionMarkdown,
+            });
+            resolve({
+                errCode: 0,
+                errMessage: 'Tạo chuyên khoa thành công'
+            })
         } catch (e) {
             reject(e);
         }

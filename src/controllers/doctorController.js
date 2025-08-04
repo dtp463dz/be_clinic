@@ -137,7 +137,7 @@ let sendConfirm = async (req, res) => {
         return res.status(200).json(response)
     } catch (e) {
         console.log(e)
-        return res.status(200).json({
+        return res.status(500).json({
             errCode: -1,
             message: 'Error from server !!!'
         })

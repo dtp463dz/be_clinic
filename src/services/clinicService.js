@@ -6,21 +6,33 @@ let createClinicService = (data) => {
             if (!data.name || !data.address || !data.descriptionHTML || !data.descriptionMarkdown || !data.image) {
                 resolve({
                     errCode: 1,
-                    errMessage: 'Missing parameter'
-                })
-            } else {
-                await db.Clinic.create({
-                    name: data.name,
-                    address: data.address,
-                    descriptionHTML: data.descriptionHTML,
-                    descriptionMarkdown: data.descriptionMarkdown,
-                    image: data.image
-                })
-                resolve({
-                    errCode: 0,
-                    errMessage: 'Tạo phòng khám thành công'
-                })
+                    errMessage: 'Thiếu tham số bắt buộc'
+                });
+                return;
             }
+            // Kiểm tra tên phòng khám đã tồn tại
+            let existingClinic = await db.Clinic.findOne({
+                where: { name: data.name }
+            });
+            if (existingClinic) {
+                resolve({
+                    errCode: 2,
+                    errMessage: 'Phòng khám này đã tồn tại'
+                });
+                return;
+            }
+            await db.Clinic.create({
+                name: data.name,
+                address: data.address,
+                descriptionHTML: data.descriptionHTML,
+                descriptionMarkdown: data.descriptionMarkdown,
+                image: data.image
+            })
+            resolve({
+                errCode: 0,
+                errMessage: 'Tạo phòng khám thành công'
+            })
+
         } catch (e) {
             reject(e)
         }

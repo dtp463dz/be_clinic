@@ -547,6 +547,13 @@ let sendConfirmService = (data) => {
                     raw: false,
 
                 })
+                if (!appointment) {
+                    resolve({
+                        errCode: 2,
+                        errMessage: 'Không tìm thấy lịch hẹn phù hợp'
+                    });
+                    return;
+                }
                 if (appointment) {
                     appointment.statusId = 'S3';
                     await appointment.save();
@@ -555,7 +562,7 @@ let sendConfirmService = (data) => {
                 await emailService.sendAttachment(data)
                 resolve({
                     errCode: 0,
-                    errMessage: 'Gửi email thành công',
+                    errMessage: 'Xác nhận và gửi email thành công',
                 })
             }
 

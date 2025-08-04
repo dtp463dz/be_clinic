@@ -131,7 +131,7 @@ let handleUserLogin = (email, password) => {
                         userData.errMessage = 'Sai mật khẩu';
                     }
                 } else {
-                    userData.errCode = 2;
+                    userData.errCode = 1;
                     userData.errMessage = `Sai tài khoản mật khẩu hoặc người dùng không tồn tại`;
                 }
             } else {
@@ -294,7 +294,7 @@ let createNewUser = async (data) => {
             let check = await checkUserEmail(userData.email);
             if (check === true) {
                 resolve({
-                    errCode: 1,
+                    errCode: 2,
                     message: 'Email này đã được sử dụng. Vui lòng tạo email khác'
                 });
                 return;
@@ -316,7 +316,7 @@ let createNewUser = async (data) => {
 
             resolve({
                 errCode: 0,
-                message: 'OK'
+                message: 'Tạo người dùng thành công'
             });
         } catch (e) {
             reject(e);

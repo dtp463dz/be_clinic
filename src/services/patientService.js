@@ -51,7 +51,7 @@ let postBookAppointmentService = (data) => {
                 if (!user) {
                     resolve({
                         errCode: 2,
-                        errMessage: 'Failed to create or find patient'
+                        errMessage: 'Không thể tạo hoặc tìm bệnh nhân'
                     });
                     return;
                 }
@@ -82,7 +82,7 @@ let postBookAppointmentService = (data) => {
             if (!booking || !booking[0]) {
                 resolve({
                     errCode: 3,
-                    errMessage: 'Failed to create or find booking'
+                    errMessage: 'Không thể tạo hoặc tìm bệnh nhân'
                 });
                 return;
             }
@@ -118,7 +118,7 @@ let postBookAppointmentService = (data) => {
 
             resolve({
                 errCode: 0,
-                errMessage: 'save infor patient succeed'
+                errMessage: 'Đặt lịch khám thành công'
             });
         } catch (e) {
             console.log('Error in postBookAppointmentService:', e);
