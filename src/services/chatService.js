@@ -1,5 +1,5 @@
 import db from "../models/index";
-import { Sequelize } from "../models/index";
+import { Sequelize, Op } from "sequelize";
 import { getOnlineUserList } from "../utils/onlineUsers";
 
 const getMessageBetweenUsers = async (fromUserId, toUserId) => {
@@ -80,10 +80,61 @@ const getOnlineUsers = (user) => {
     };
 };
 
+const getConversations = async (doctorId) => {
+    try {
+        // Lấy danh sách các senderId và receiverId duy nhất liên quan đến doctorId
+        const messageUsers = await db.Message.findAll({
+            attributes: [[Sequelize.fn('DISTINCT', Sequelize.col('senderId')), 'userId']],
+            where: {
+                receiverId: doctorId
+            },
+            raw: true
+        });
 
+        const receiverUsers = await db.Message.findAll({
+            attributes: [[Sequelize.fn('DISTINCT', Sequelize.col('receiverId')), 'userId']],
+            where: {
+                senderId: doctorId
+            },
+            raw: true
+        });
+
+        // Gộp danh sách userId duy nhất
+        const userIds = [
+            ...new Set([
+                ...messageUsers.map(m => m.userId),
+                ...receiverUsers.map(m => m.userId)
+            ])
+        ];
+
+        // Lấy thông tin bệnh nhân (roleId = 'R3') từ danh sách userIds
+        const conversations = await db.User.findAll({
+            attributes: ['id', 'firstName', 'lastName'],
+            where: {
+                roleId: 'R3',
+                id: {
+                    [Op.in]: userIds
+                }
+            },
+            order: [['firstName', 'ASC']]
+        });
+
+        return {
+            errCode: 0,
+            data: conversations
+        };
+    } catch (error) {
+        console.error('getConversations error:', error);
+        return {
+            errCode: 1,
+            errMessage: 'Không thể lấy danh sách cuộc hội thoại'
+        };
+    }
+};
 
 module.exports = {
     getMessageBetweenUsers,
     sendMessage,
-    getOnlineUsers
+    getOnlineUsers,
+    getConversations
 }

@@ -15,6 +15,7 @@ import bodyPartController from "../controllers/bodyPartController.js";
 import dashboardController from "../controllers/dashboardController";
 import chatController from "../controllers/chatController.js";
 import authenticateToken from "../middleware/auth.js";
+import authenticateTokenForDoctor from "../middleware/authDoctor.js";
 import isAdmin from "../middleware/isAdmin.js";
 
 let router = express.Router();
@@ -129,6 +130,7 @@ let initWebRoutes = (app) => {
     // chat message
     router.get('/api/messages', authenticateToken, chatController.getMessage); // lấy tin nhắn giữa user và bác sĩ
     router.post('/api/messages', authenticateToken, chatController.postMessage);  // gửi tin nhắn từ user và bác sĩ
+    router.get('/api/conversations', authenticateTokenForDoctor, chatController.getConversations); // lay danh sach bệnh nhân nhắn bác sĩ
     router.get('/api/online-users', authenticateToken, isAdmin, chatController.getOnlineUsers); // hiển thị người đang online
 
     return app.use("/", router);
