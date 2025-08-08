@@ -178,6 +178,12 @@ let getUserProfile = async (req, res) => {
         })
     }
 }
+// edit patient
+let handleEditPatient = async (req, res) => {
+    let data = req.body;
+    let message = await userService.updatePatientData(data);
+    return res.status(200).json(message);
+};
 
 module.exports = {
     handleRegister: handleRegister,
@@ -190,4 +196,5 @@ module.exports = {
     handleDeleteUser: handleDeleteUser,
     getAllCode: getAllCode,
     getUserProfile: getUserProfile,
+    handleEditPatient: handleEditPatient,
 }

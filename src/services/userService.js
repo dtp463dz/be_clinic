@@ -483,6 +483,58 @@ let getUserProfileService = (userId) => {
     })
 }
 
+// edit patient
+let updatePatientData = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            // Kiểm tra các trường bắt buộc
+            if (!data.id || !data.gender) {
+                resolve({
+                    errCode: 2,
+                    errMessage: `Thiếu ${!data.id ? 'id' : 'gender'}`
+                });
+                return;
+            }
+            // Kiểm tra roleId, mặc định là R3 (bệnh nhân)
+            if (!data.roleId) {
+                data.roleId = 'R3';
+            } else if (data.roleId !== 'R3') {
+                resolve({
+                    errCode: 3,
+                    errMessage: 'Chỉ được cập nhật thông tin bệnh nhân (roleId: R3)'
+                });
+                return;
+            }
+            let user = await db.User.findOne({
+                where: { id: data.id },
+                raw: false
+            });
+            if (user) {
+                user.firstName = data.firstName;
+                user.lastName = data.lastName;
+                user.address = data.address;
+                user.phonenumber = data.phonenumber;
+                user.gender = data.gender;
+                user.roleId = data.roleId;
+                if (data.image) {
+                    user.image = data.image;
+                }
+                await user.save();
+                resolve({
+                    errCode: 0,
+                    message: 'Cập nhật hồ sơ bệnh nhân thành công'
+                });
+            } else {
+                resolve({
+                    errCode: 1,
+                    message: 'Không tìm thấy bệnh nhân'
+                });
+            }
+        } catch (e) {
+            reject(e);
+        }
+    });
+};
 module.exports = {
     handleRegisterUser: handleRegisterUser,
     handleUserLogin: handleUserLogin,
@@ -495,4 +547,5 @@ module.exports = {
     updateUserData: updateUserData,
     getAllCodeService: getAllCodeService,
     getUserProfileService: getUserProfileService,
+    updatePatientData: updatePatientData,
 }

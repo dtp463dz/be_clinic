@@ -48,6 +48,7 @@ let initWebRoutes = (app) => {
     router.put(`/api/edit-user`, userController.handleEditUser);  // edit user
     router.delete(`/api/delete-user`, userController.handleDeleteUser); // delete user
     router.get('/api/get-user-profile', authenticateToken, userController.getUserProfile); // xem hồ sơ bệnh nhân
+    router.put(`/api/edit-patient`, authenticateToken, userController.handleEditPatient); // edit ho so benh nhan
 
     router.get('/api/allcode', userController.getAllCode);
 
