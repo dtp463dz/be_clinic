@@ -712,6 +712,21 @@ let getDoctorNotificaitons = (doctorId) => {
         }
     })
 }
+
+let markNotificationAsRead = (notificationId, doctorId) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            await db.Notification.update(
+                { status: 'read' },
+                { where: { id: notificationId, doctorId: doctorId } }
+            );
+            resolve({ errCode: 0, message: 'Đã đánh dấu đã đọc' });
+        } catch (e) {
+            reject({ errCode: -1, message: 'Lỗi server' });
+        }
+    });
+};
+
 module.exports = {
     getTopDoctorHomeService: getTopDoctorHomeService,
     getAllDoctorService: getAllDoctorService,
@@ -725,5 +740,5 @@ module.exports = {
     sendConfirmService: sendConfirmService,
     cancelConfirmService: cancelConfirmService,
     getDoctorNotificaitons: getDoctorNotificaitons,
-
+    markNotificationAsRead: markNotificationAsRead,
 }

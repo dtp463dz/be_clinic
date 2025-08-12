@@ -188,6 +188,22 @@ let getDoctorNotifications = async (req, res) => {
     }
 }
 
+
+let markNotificationAsRead = async (req, res) => {
+    try {
+        const { notificationId } = req.body;
+        const doctorId = req.user.userId;
+        if (!notificationId || !doctorId) {
+            return res.status(400).json({ errCode: 1, message: 'Thiếu dữ liệu' });
+        }
+        let response = await doctorService.markNotificationAsRead(notificationId, doctorId);
+        return res.status(200).json(response);
+    } catch (e) {
+        return res.status(500).json({ errCode: -1, message: 'Lỗi server' });
+    }
+};
+
+
 module.exports = {
     getTopDoctorHome: getTopDoctorHome,
     getAllDoctor: getAllDoctor,
@@ -201,4 +217,5 @@ module.exports = {
     sendConfirm: sendConfirm,
     cancelConfirm: cancelConfirm,
     getDoctorNotifications: getDoctorNotifications,
+    markNotificationAsRead: markNotificationAsRead,
 }
