@@ -14,6 +14,7 @@ import herbController from "../controllers/herbController.js";
 import bodyPartController from "../controllers/bodyPartController.js";
 import dashboardController from "../controllers/dashboardController";
 import chatController from "../controllers/chatController.js";
+import chatHistoryController from "../controllers/chatHistoryController.js";
 import authenticateToken from "../middleware/auth.js";
 import authenticateTokenForDoctor from "../middleware/authDoctor.js";
 import isAdmin from "../middleware/isAdmin.js";
@@ -133,6 +134,11 @@ let initWebRoutes = (app) => {
     router.post('/api/messages', authenticateToken, chatController.postMessage);  // gửi tin nhắn từ user và bác sĩ
     router.get('/api/conversations', authenticateTokenForDoctor, chatController.getConversations); // lay danh sach bệnh nhân nhắn bác sĩ
     router.get('/api/online-users', authenticateToken, isAdmin, chatController.getOnlineUsers); // hiển thị người đang online
+
+
+    // chatbot
+    router.post('/api/chatbot', authenticateToken, chatHistoryController.askBot);  // gửi câu hỏi và nhận câu trả lời từ bot
+    router.get('/api/chatbot/history', authenticateToken, chatHistoryController.getHistory); // lấy lịch sử chatbot
 
     return app.use("/", router);
 }

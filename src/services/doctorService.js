@@ -299,7 +299,7 @@ const bulkCreateScheduleService = (data) => {
                     date: itemDate // Lưu dưới dạng chuỗi timestamp
                 };
             });
-            console.log('check data bulk create schedule data send: ', schedule);
+            //console.log('check data bulk create schedule data send: ', schedule);
 
             // Kiểm tra lịch hiện có
             let existing = await db.Schedule.findAll({
