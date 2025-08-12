@@ -1,5 +1,5 @@
 import db from '../models/index.js';
-import fetch from 'node-fetch'; // gọi Gemini API
+import fetch from 'node-fetch';
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -23,27 +23,44 @@ const callGeminiAPI = async (question) => {
     }
 };
 
-const saveChat = async (patientId, question) => {
-    // Gọi Gemini API lấy câu trả lời
+const saveChat = async (patientId, question, conversationId) => {
     const answer = await callGeminiAPI(question);
 
-    // Lưu vào DB
+    let convId = conversationId;
+
+    if (!convId) {
+        const newConv = await db.Conversation.create({
+            patientId,
+            title: question.slice(0, 50) // cắt 50 ký tự đầu làm tiêu đề
+        });
+        convId = newConv.id;
+    }
+
     const chat = await db.ChatHistory.create({
         patientId,
+        conversationId: convId,
         question,
         answer,
         timestamp: new Date()
     });
 
-    return { errCode: 0, data: chat, answer };
+    return { errCode: 0, data: chat, answer, conversationId: convId };
 };
 
-const getHistory = async (patientId) => {
-    const chats = await db.ChatHistory.findAll({
+const getConversations = async (patientId) => {
+    const conversations = await db.Conversation.findAll({
         where: { patientId },
+        order: [['createdAt', 'DESC']]
+    });
+    return { errCode: 0, data: conversations };
+};
+
+const getMessagesByConversation = async (patientId, conversationId) => {
+    const messages = await db.ChatHistory.findAll({
+        where: { patientId, conversationId },
         order: [['timestamp', 'ASC']]
     });
-    return { errCode: 0, data: chats };
+    return { errCode: 0, data: messages };
 };
 
-export default { saveChat, getHistory };
+export default { saveChat, getConversations, getMessagesByConversation };

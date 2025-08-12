@@ -12,10 +12,12 @@ module.exports = (sequelize, DataTypes) => {
         static associate(models) {
             // define association here
             ChatHistory.belongsTo(models.User, { foreignKey: 'patientId', as: 'patient' });
+            ChatHistory.belongsTo(models.Conversation, { foreignKey: 'conversationId', as: 'conversation' });
         }
     }
     ChatHistory.init({
         patientId: DataTypes.INTEGER,
+        conversationId: DataTypes.INTEGER,
         question: DataTypes.TEXT,
         answer: DataTypes.TEXT,
         timestamp: DataTypes.DATE

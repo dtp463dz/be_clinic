@@ -138,7 +138,10 @@ let initWebRoutes = (app) => {
 
     // chatbot
     router.post('/api/chatbot', authenticateToken, chatHistoryController.askBot);  // gửi câu hỏi và nhận câu trả lời từ bot
-    router.get('/api/chatbot/history', authenticateToken, chatHistoryController.getHistory); // lấy lịch sử chatbot
+    // phiên trò chuyện chatbot
+    router.get('/api/chatbot/conversations', authenticateToken, chatHistoryController.getConversations);
+    router.get('/api/chatbot/conversations/:conversationId', authenticateToken, chatHistoryController.getMessages);
+
 
     return app.use("/", router);
 }
