@@ -80,42 +80,52 @@ let checkRequiredFields = (inputData) => {
 let saveDetailInforDoctor = (inputData) => {
     return new Promise(async (resolve, reject) => {
         try {
-            let checkObj = checkRequiredFields(inputData)
+            let checkObj = checkRequiredFields(inputData);
             if (checkObj.isValid === false) {
                 resolve({
                     errCode: 1,
-                    errMessage: `Mising parameter: ${checkObj.element}`
-                })
+                    errMessage: `Missing parameter: ${checkObj.element}`
+                });
             } else {
-                // tao case create va edit doctor Markdown
+                // CREATE
                 if (inputData.action === "CREATE") {
                     await db.Markdown.create({
                         contentHTML: inputData.contentHTML,
                         contentMarkdown: inputData.contentMarkdown,
                         description: inputData.description,
                         doctorId: inputData.doctorId,
-                    })
-                } else if (inputData.action === "EDIT") {
+                    });
+                }
+                // EDIT
+                else if (inputData.action === "EDIT") {
                     let doctorMarkdown = await db.Markdown.findOne({
                         where: { doctorId: inputData.doctorId },
                         raw: false
-                    })
+                    });
+
                     if (doctorMarkdown) {
                         doctorMarkdown.contentHTML = inputData.contentHTML;
                         doctorMarkdown.contentMarkdown = inputData.contentMarkdown;
                         doctorMarkdown.description = inputData.description;
                         await doctorMarkdown.save();
+                    } else {
+                        // Không tìm thấy → tạo mới
+                        await db.Markdown.create({
+                            contentHTML: inputData.contentHTML,
+                            contentMarkdown: inputData.contentMarkdown,
+                            description: inputData.description,
+                            doctorId: inputData.doctorId,
+                        });
                     }
                 }
-                // upsert to Doctor_infor table
+
+                // upsert vào Doctor_infor
                 let doctorInfor = await db.Doctor_Infor.findOne({
-                    where: {
-                        doctorId: inputData.doctorId,
-                    },
+                    where: { doctorId: inputData.doctorId },
                     raw: false
-                })
+                });
                 if (doctorInfor) {
-                    //update Cập nhật bản ghi
+                    // update
                     doctorInfor.priceId = inputData.priceId;
                     doctorInfor.paymentId = inputData.paymentId;
                     doctorInfor.provinceId = inputData.provinceId;
@@ -137,12 +147,13 @@ let saveDetailInforDoctor = (inputData) => {
                         note: inputData.note,
                         specialtyId: inputData.specialtyId,
                         clinicId: inputData.clinicId
-                    })
+                    });
                 }
+
                 resolve({
                     errCode: 0,
-                    errMessage: 'Save infor doctor succeed! '
-                })
+                    errMessage: 'Save infor doctor succeed!'
+                });
             }
         } catch (e) {
             console.error('Lỗi khi lưu thông tin bác sĩ:', e);
@@ -151,8 +162,11 @@ let saveDetailInforDoctor = (inputData) => {
                 errMessage: 'Lỗi server khi lưu thông tin bác sĩ',
             });
         }
-    })
-}
+    });
+};
+
+
+
 
 // get detail doctor by id service
 let getDetailDoctorByIdService = (inputId) => {
