@@ -348,29 +348,50 @@ const getScheduleDoctorByDateService = (doctorId, date) => {
                 resolve({
                     errCode: 1,
                     errMessage: 'Missing required parameter doctorId or date'
-                })
-            } else {
-                // tìm bảng ghi trong bảng Schedule theo doctorId, date
-                let dataSchedule = await db.Schedule.findAll({
-                    where: {
-                        doctorId: doctorId,
-                        date: date,
-                    },
-                    // thêm data ở Allcode vào bảng Schedule thông qua association
-                    include: [
-                        { model: db.Allcode, as: 'timeTypeData', attributes: ['valueEn', 'valueVi'] }, // lấy timeTypeData được định nghĩa bên bảng Allcode và Schedule
-                        { model: db.User, as: 'doctorData', attributes: ['firstName', 'lastName'] },  // lấy doctorData được định nghĩa bên quan hệ giữa bảng Schedule và User, chỉ lấy firstName lastName
-                    ],
-                    nest: true, // Giữ cấu trúc lồng nhau giữa các bảng (Schedule -> Allcode)
-                    raw: false // Trả về dữ liệu thuần (không phải instance của Sequelize)
-                })
-                if (!dataSchedule) dataSchedule = {}
-                resolve({
-                    errCode: 0,
-                    data: dataSchedule,
-                })
-
+                });
+                return;
             }
+
+            // Lấy tất cả lịch từ Schedule
+            let dataSchedule = await db.Schedule.findAll({
+                where: {
+                    doctorId: doctorId,
+                    date: date,
+                },
+                include: [
+                    { model: db.Allcode, as: 'timeTypeData', attributes: ['valueEn', 'valueVi'] },
+                    { model: db.User, as: 'doctorData', attributes: ['firstName', 'lastName'] },
+                ],
+                nest: true,
+                raw: false
+            });
+
+            if (!dataSchedule) dataSchedule = [];
+
+            // Lấy tất cả booking đã được đặt (S1: chờ xác nhận, S2: đã xác nhận)
+            const bookedSlots = await db.Booking.findAll({
+                where: {
+                    doctorId: doctorId,
+                    date: date,
+                    statusId: { [db.Sequelize.Op.in]: ['S1', 'S2'] }
+                },
+                attributes: ['timeType'],
+                raw: true
+            });
+
+            const bookedTimeTypes = bookedSlots.map(item => item.timeType);
+
+            // Gắn thêm flag isBooked
+            dataSchedule = dataSchedule.map(slot => ({
+                ...slot.toJSON(),
+                isBooked: bookedTimeTypes.includes(slot.timeType)
+            }));
+
+            resolve({
+                errCode: 0,
+                data: dataSchedule
+            });
+
         } catch (e) {
             reject(e);
         }
